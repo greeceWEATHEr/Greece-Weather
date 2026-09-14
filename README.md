@@ -3,680 +3,368 @@
 <html lang="el">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ελλάδα Weather</title>
-
 <style>
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #e7f5ff, #f8fcff);
-  color: #123047;
-}
-
-header {
-  background: linear-gradient(135deg, #0879c9, #063d78);
-  color: white;
-  text-align: center;
-  padding: 35px 18px;
-}
-
-header h1 {
-  margin: 0;
-  font-size: 36px;
-}
-
-header p {
-  margin: 10px 0 0;
-  font-size: 17px;
-}
-
-main {
-  max-width: 1100px;
-  margin: auto;
-  padding: 25px 18px;
-}
-
-h2 {
-  text-align: center;
-  margin-bottom: 22px;
-}
-
-.menu {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 18px;
-}
-
-.menu-button {
-  border: none;
-  border-radius: 18px;
-  padding: 28px 18px;
-  background: white;
-  box-shadow: 0 5px 20px #00000012;
-  cursor: pointer;
-  color: #123047;
-  transition: transform 0.2s, box-shadow 0.2s;
-  font-size: 17px;
-}
-
-.menu-button:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px #00000025;
-}
-
-.menu-icon {
-  font-size: 48px;
-  display: block;
-  margin-bottom: 12px;
-}
-
-.menu-button strong {
-  display: block;
-  font-size: 20px;
-  margin-bottom: 8px;
-  color: #0879c9;
-}
-
-.menu-button span {
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.page {
-  display: none;
-}
-
-.page.active {
-  display: block;
-}
-
-.back-button {
-  background: #0879c9;
-  color: white;
-  border: none;
-  padding: 12px 18px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 15px;
-  margin-bottom: 20px;
-}
-
-.map-box {
-  background: white;
-  border-radius: 18px;
-  padding: 20px;
-  box-shadow: 0 5px 20px #00000012;
-  margin-bottom: 18px;
-}
-
-.map-box h3 {
-  margin-top: 0;
-}
-
-.map-box a {
-  display: inline-block;
-  background: #0879c9;
-  color: white;
-  text-decoration: none;
-  padding: 12px 16px;
-  border-radius: 9px;
-  margin-top: 8px;
-}
-
-.map-box p {
-  line-height: 1.6;
-}
-
-.selector {
-  background: white;
-  padding: 18px;
-  border-radius: 16px;
-  box-shadow: 0 5px 20px #00000012;
-  margin-bottom: 20px;
-}
-
-select {
-  width: 100%;
-  padding: 13px;
-  border-radius: 10px;
-  border: 1px solid #aac5d8;
-  font-size: 16px;
-}
-
-.status {
-  margin-top: 12px;
-  color: #527084;
-}
-
-.current {
-  background: white;
-  border-radius: 18px;
-  padding: 24px;
-  box-shadow: 0 5px 20px #00000012;
-  margin-bottom: 20px;
-}
-
-.temperature {
-  font-size: 58px;
-  font-weight: bold;
-  color: #0879c9;
-}
-
-.details,
-.forecast {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
-  gap: 12px;
-}
-
-.detail,
-.day {
-  background: #edf8ff;
-  padding: 14px;
-  border-radius: 12px;
-}
-
-.day {
-  text-align: center;
-  background: white;
-  box-shadow: 0 4px 15px #0000000d;
-}
-
-.icon {
-  font-size: 30px;
-  margin: 8px;
-}
-
-.max {
-  color: #df4b35;
-  font-weight: bold;
-}
-
-.min {
-  color: #0879c9;
-  font-weight: bold;
-}
-
-.note {
-  background: #fff8df;
-  border-left: 5px solid #d9a51e;
-  padding: 14px;
-  border-radius: 10px;
-  line-height: 1.5;
-  margin-top: 20px;
-}
-
-footer {
-  text-align: center;
-  padding: 25px;
-  color: #527084;
-  font-size: 13px;
-}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#eef8ff;color:#12344d}
+header{background:linear-gradient(135deg,#06477d,#08a5df);color:white;text-align:center;padding:30px 15px}
+header h1{margin:0;font-size:36px}
+main{max-width:1150px;margin:auto;padding:20px}
+.page{display:none}.active{display:block}
+.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.card,.panel{background:white;border-radius:18px;box-shadow:0 6px 22px #0002}
+.card{border:0;padding:25px;text-align:left;cursor:pointer}
+.card h2{color:#087fc5}
+.panel{padding:20px;margin-bottom:18px}
+.back{border:0;border-radius:10px;padding:12px 18px;background:#087fc5;color:white;cursor:pointer}
+select{width:100%;padding:12px;border:1px solid #aac5d5;border-radius:10px;margin:8px 0 15px}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+#map{width:100%;aspect-ratio:1.25;background:#d9effb;border-radius:15px;display:block}
+.status{color:#557386;margin:10px 0}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.legend span{padding:8px;border-radius:8px;color:white;font-size:13px}
+.forecast{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.day{background:#eaf7ff;border-radius:12px;padding:12px;text-align:center}
 </style>
 </head>
 
 <body>
-
 <header>
-  <h1>🌦️ Ελλάδα Weather</h1>
-  <p>Μετεωρολογικοί χάρτες και αναλυτική πρόγνωση Ελλάδας</p>
+<h1>🌦️ Ελλάδα Weather</h1>
+<p>Μετεωρολογικοί χάρτες και πρόγνωση Ελλάδας</p>
 </header>
 
 <main>
 
-<!-- ΑΡΧΙΚΗ ΣΕΛΙΔΑ -->
-<section id="homePage" class="page active">
+<section id="home" class="page active">
+<div class="panel">
+<h2>Επίλεξε υπηρεσία</h2>
+<p>Όλοι οι χάρτες εμφανίζονται μέσα στη δική σου ιστοσελίδα.</p>
+</div>
 
-  <h2>Επίλεξε τι θέλεις να δεις</h2>
+<div class="menu">
+<button class="card" onclick="openPage('maps');changeType('temp')">
+<h2>🌡️ Θερμοκρασία 850 hPa</h2>
+<p>Θερμοκρασία αερίων μαζών περίπου στα 1.500 μέτρα.</p>
+</button>
 
-  <div class="menu">
+<button class="card" onclick="openPage('maps');changeType('rain')">
+<h2>🌧️ Βροχή και χιόνι</h2>
+<p>Πραγματικά δεδομένα υετού από το μοντέλο.</p>
+</button>
 
-    <button class="menu-button" onclick="showPage('temperaturePage')">
-      <span class="menu-icon">🌡️</span>
-      <strong>Θερμοκρασία 850 hPa</strong>
-      <span>
-        Χάρτες αερίων μαζών και θερμοκρασίας
-        περίπου στα 1.500 μέτρα ύψος.
-      </span>
-    </button>
+<button class="card" onclick="openPage('maps');changeType('wind')">
+<h2>💨 Άνεμος</h2>
+<p>Ταχύτητα ανέμου σε σημεία της Ελλάδας.</p>
+</button>
 
-    <button class="menu-button" onclick="showPage('rainPage')">
-      <span class="menu-icon">🌧️</span>
-      <strong>Βροχή και χιόνι</strong>
-      <span>
-        Χάρτες υετού, βροχοπτώσεων και
-        χιονοπτώσεων.
-      </span>
-    </button>
-
-    <button class="menu-button" onclick="showPage('windPage')">
-      <span class="menu-icon">💨</span>
-      <strong>Άνεμος</strong>
-      <span>
-        Χάρτες διεύθυνσης και ταχύτητας
-        ανέμων στην Ελλάδα και την Ευρώπη.
-      </span>
-    </button>
-
-    <button class="menu-button" onclick="showPage('forecastPage')">
-      <span class="menu-icon">📅</span>
-      <strong>Αναλυτικός καιρός Ελλάδας</strong>
-      <span>
-        Πρόγνωση 15 ημερών με επιλογή πόλης
-        και διαθέσιμα πολυμοντελικά δεδομένα.
-      </span>
-    </button>
-
-  </div>
-
+<button class="card" onclick="openPage('forecast')">
+<h2>📅 Πρόγνωση 15 ημερών</h2>
+<p>Αναλυτική πρόγνωση για ελληνικές πόλεις.</p>
+</button>
+</div>
 </section>
 
+<section id="maps" class="page">
+<button class="back" onclick="openPage('home')">← Πίσω</button>
 
-<!-- ΧΑΡΤΕΣ ΘΕΡΜΟΚΡΑΣΙΑΣ 850 hPa -->
-<section id="temperaturePage" class="page">
+<div class="panel">
+<h2 id="mapTitle">🌡️ Θερμοκρασία 850 hPa</h2>
 
-  <button class="back-button" onclick="showPage('homePage')">
-    ← Επιστροφή στην αρχική
-  </button>
+<div class="controls">
+<div>
+<label>Τύπος χάρτη</label>
+<select id="type" onchange="loadMap()">
+<option value="temp">Θερμοκρασία 850 hPa</option>
+<option value="rain">Βροχή και χιόνι</option>
+<option value="wind">Άνεμος</option>
+</select>
+</div>
 
-  <h2>🌡️ Χάρτες θερμοκρασίας 850 hPa</h2>
+<div>
+<label>Μοντέλο</label>
+<select id="model" onchange="loadMap()">
+<option value="ecmwf_ifs025">ECMWF IFS</option>
+<option value="gfs_global">GFS</option>
+<option value="icon_global">ICON</option>
+</select>
+</div>
 
-  <div class="map-box">
-    <h3>ECMWF – Θερμοκρασία αερίων μαζών</h3>
-    <p>
-      Δες χάρτες θερμοκρασίας στα 850 hPa,
-      χρήσιμους για την εκτίμηση των θερμών
-      και ψυχρών αερίων μαζών.
-    </p>
-    <a href="https://www.meteologix.com/" target="_blank">
-      Άνοιγμα χαρτών
-    </a>
-  </div>
+<div>
+<label>Χρονικό βήμα</label>
+<select id="hour" onchange="loadMap()">
+<option value="0">Τώρα</option>
+<option value="6">+6 ώρες</option>
+<option value="12">+12 ώρες</option>
+<option value="24">+24 ώρες</option>
+<option value="48">+48 ώρες</option>
+</select>
+</div>
+</div>
 
-  <div class="map-box">
-    <h3>GFS – Θερμοκρασία 850 hPa</h3>
-    <p>
-      Σύγκρινε την πρόγνωση του GFS με άλλα
-      παγκόσμια μοντέλα.
-    </p>
-    <a href="https://www.windy.com/" target="_blank">
-      Άνοιγμα Windy
-    </a>
-  </div>
-
+<div id="mapStatus" class="status">Φόρτωση δεδομένων...</div>
+<canvas id="map" width="900" height="720"></canvas>
+<div class="legend" id="legend"></div>
+</div>
 </section>
 
+<section id="forecast" class="page">
+<button class="back" onclick="openPage('home')">← Πίσω</button>
 
-<!-- ΧΑΡΤΕΣ ΒΡΟΧΗΣ ΚΑΙ ΧΙΟΝΙΟΥ -->
-<section id="rainPage" class="page">
-
-  <button class="back-button" onclick="showPage('homePage')">
-    ← Επιστροφή στην αρχική
-  </button>
-
-  <h2>🌧️ Χάρτες βροχής και χιονιού</h2>
-
-  <div class="map-box">
-    <h3>Χάρτες υετού</h3>
-    <p>
-      Δες την πρόγνωση βροχής, χιονιού και
-      συνολικού υετού για την Ελλάδα.
-    </p>
-    <a href="https://www.meteologix.com/" target="_blank">
-      Άνοιγμα χαρτών υετού
-    </a>
-  </div>
-
-  <div class="map-box">
-    <h3>Ραντάρ βροχής</h3>
-    <p>
-      Δες την τρέχουσα κίνηση των βροχοπτώσεων
-      και των καταιγίδων.
-    </p>
-    <a href="https://www.rainviewer.com/" target="_blank">
-      Άνοιγμα ραντάρ
-    </a>
-  </div>
-
-</section>
-
-
-<!-- ΧΑΡΤΕΣ ΑΝΕΜΟΥ -->
-<section id="windPage" class="page">
-
-  <button class="back-button" onclick="showPage('homePage')">
-    ← Επιστροφή στην αρχική
-  </button>
-
-  <h2>💨 Χάρτες ανέμου</h2>
-
-  <div class="map-box">
-    <h3>Windy – Άνεμος και ριπές</h3>
-    <p>
-      Δες την ταχύτητα, τις ριπές και τη
-      διεύθυνση των ανέμων.
-    </p>
-    <a href="https://www.windy.com/" target="_blank">
-      Άνοιγμα χαρτών ανέμου
-    </a>
-  </div>
-
-  <div class="map-box">
-    <h3>Earth Nullschool</h3>
-    <p>
-      Διαδραστική απεικόνιση της κυκλοφορίας
-      των ανέμων στην ατμόσφαιρα.
-    </p>
-    <a href="https://earth.nullschool.net/" target="_blank">
-      Άνοιγμα Earth Nullschool
-    </a>
-  </div>
-
-</section>
-
-
-<!-- ΑΝΑΛΥΤΙΚΟΣ ΚΑΙΡΟΣ -->
-<section id="forecastPage" class="page">
-
-  <button class="back-button" onclick="showPage('homePage')">
-    ← Επιστροφή στην αρχική
-  </button>
-
-  <h2>📅 Αναλυτικός καιρός Ελλάδας</h2>
-
-  <div class="selector">
-    <label for="city">
-      <strong>Επίλεξε πόλη:</strong>
-    </label>
-
-    <select id="city">
-      <option value="40.6401,22.9444,Θεσσαλονίκη">Θεσσαλονίκη</option>
-      <option value="37.9838,23.7275,Αθήνα">Αθήνα</option>
-      <option value="38.2466,21.7346,Πάτρα">Πάτρα</option>
-      <option value="39.639,22.4191,Λάρισα">Λάρισα</option>
-      <option value="35.3387,25.1442,Ηράκλειο">Ηράκλειο</option>
-      <option value="39.665,20.8537,Ιωάννινα">Ιωάννινα</option>
-      <option value="40.5244,22.2053,Βέροια">Βέροια</option>
-      <option value="40.9396,24.4018,Καβάλα">Καβάλα</option>
-      <option value="40.2686,22.5061,Κατερίνη">Κατερίνη</option>
-      <option value="38.6214,21.4078,Αγρίνιο">Αγρίνιο</option>
-      <option value="36.4349,28.2176,Ρόδος">Ρόδος</option>
-      <option value="35.5138,24.018,Χανιά">Χανιά</option>
-    </select>
-
-    <div class="status" id="status">
-      Πάτησε την επιλογή για να φορτώσει η πρόγνωση.
-    </div>
-  </div>
-
-  <div class="current">
-    <h2 id="cityName">Θεσσαλονίκη</h2>
-    <p id="description">--</p>
-    <div class="temperature" id="currentTemp">--°C</div>
-
-    <div class="details">
-      <div class="detail">
-        🌡️ Μέση μέγιστη:
-        <strong id="avgMax">--</strong>
-      </div>
-
-      <div class="detail">
-        🌡️ Μέση ελάχιστη:
-        <strong id="avgMin">--</strong>
-      </div>
-
-      <div class="detail">
-        🌧️ Πιθανότητα βροχής:
-        <strong id="rain">--</strong>
-      </div>
-
-      <div class="detail">
-        🧮 Διαθέσιμα μοντέλα:
-        <strong id="modelCount">--</strong>
-      </div>
-    </div>
-  </div>
-
-  <h2>Πρόγνωση 15 ημερών</h2>
-  <div class="forecast" id="forecast"></div>
-
-  <div class="note">
-    Οι προβλέψεις είναι εκτιμήσεις από διαθέσιμα
-    μετεωρολογικά μοντέλα. Η αβεβαιότητα αυξάνεται
-    όσο απομακρυνόμαστε από τη σημερινή ημέρα.
-  </div>
-
+<div class="panel">
+<h2>📅 Πρόγνωση 15 ημερών</h2>
+<select id="city" onchange="loadForecast()">
+<option value="40.6401,22.9444,Θεσσαλονίκη">Θεσσαλονίκη</option>
+<option value="37.9838,23.7275,Αθήνα">Αθήνα</option>
+<option value="38.2466,21.7346,Πάτρα">Πάτρα</option>
+<option value="39.639,22.419,Λάρισα">Λάρισα</option>
+<option value="35.3387,25.1442,Ηράκλειο">Ηράκλειο</option>
+<option value="39.665,20.8537,Ιωάννινα">Ιωάννινα</option>
+</select>
+<div id="forecastStatus" class="status"></div>
+<div id="forecastBox" class="forecast"></div>
+</div>
 </section>
 
 </main>
 
-<footer>
-  Ελλάδα Weather
-</footer>
-
-
 <script>
-function showPage(pageId) {
-  const pages = document.querySelectorAll(".page");
+const canvas=document.getElementById("map");
+const ctx=canvas.getContext("2d");
 
-  pages.forEach(page => {
-    page.classList.remove("active");
+const points=[];
+for(let lat=35;lat<=41;lat+=1){
+  for(let lon=20;lon<=28;lon+=1){
+    points.push({lat,lon});
+  }
+}
+
+let currentType="temp";
+let currentData=[];
+
+function openPage(id){
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+
+  if(id==="maps")loadMap();
+  if(id==="forecast")loadForecast();
+}
+
+function changeType(type){
+  document.getElementById("type").value=type;
+  currentType=type;
+  loadMap();
+}
+
+function getVariable(){
+  if(currentType==="temp")return "temperature_850hPa";
+  if(currentType==="rain")return "precipitation";
+  return "wind_speed_10m";
+}
+
+function color(value,min,max){
+  let r=(value-min)/(max-min||1);
+  r=Math.max(0,Math.min(1,r));
+
+  if(currentType==="rain"){
+    if(r<.2)return "#d8f6ff";
+    if(r<.4)return "#70c8f2";
+    if(r<.6)return "#3288d8";
+    if(r<.8)return "#7047c8";
+    return "#d72dc8";
+  }
+
+  if(r<.2)return "#244bc7";
+  if(r<.4)return "#36a9e8";
+  if(r<.6)return "#f2df54";
+  if(r<.8)return "#f28b35";
+  return "#d62e36";
+}
+
+function drawMap(){
+  ctx.clearRect(0,0,900,720);
+  ctx.fillStyle="#cce9f7";
+  ctx.fillRect(0,0,900,720);
+
+  const left=20,right=28,top=41,bottom=35;
+  const x=lon=>(lon-left)/(right-left)*900;
+  const y=lat=>(top-lat)/(top-bottom)*720;
+
+  ctx.strokeStyle="#ffffffaa";
+  ctx.lineWidth=1;
+
+  for(let lon=20;lon<=28;lon++){
+    ctx.beginPath();
+    ctx.moveTo(x(lon),0);
+    ctx.lineTo(x(lon),720);
+    ctx.stroke();
+  }
+
+  for(let lat=35;lat<=41;lat++){
+    ctx.beginPath();
+    ctx.moveTo(0,y(lat));
+    ctx.lineTo(900,y(lat));
+    ctx.stroke();
+  }
+
+  if(!currentData.length)return;
+
+  const values=currentData.map(p=>p.value).filter(v=>Number.isFinite(v));
+  if(!values.length)return;
+
+  const min=Math.min(...values);
+  const max=Math.max(...values);
+
+  currentData.forEach(p=>{
+    if(!Number.isFinite(p.value))return;
+
+    const px=x(p.lon);
+    const py=y(p.lat);
+
+    ctx.beginPath();
+    ctx.arc(px,py,42,0,Math.PI*2);
+    ctx.fillStyle=color(p.value,min,max);
+    ctx.globalAlpha=.78;
+    ctx.fill();
+    ctx.globalAlpha=1;
+
+    ctx.fillStyle="#102b42";
+    ctx.font="bold 13px Arial";
+    ctx.textAlign="center";
+
+    let text;
+    if(currentType==="rain")text=p.value.toFixed(1)+" mm";
+    else if(currentType==="wind")text=p.value.toFixed(1)+" km/h";
+    else text=p.value.toFixed(1)+"°C";
+
+    ctx.fillText(text,px,py+4);
   });
 
-  document.getElementById(pageId).classList.add("active");
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-
-  if (pageId === "forecastPage") {
-    loadWeather();
-  }
+  ctx.textAlign="left";
 }
 
-const citySelect = document.getElementById("city");
-const statusBox = document.getElementById("status");
+async function loadMap(){
+  currentType=document.getElementById("type").value;
 
-const models = [
-  { name: "ECMWF", id: "ecmwf_ifs025" },
-  { name: "GFS", id: "ncep_gfs_global" },
-  { name: "ICON", id: "icon_global" },
-  { name: "UKMO", id: "ukmo_global_deterministic_10km" },
-  { name: "ARPEGE", id: "meteofrance_arpege_world" }
-];
+  const model=document.getElementById("model").value;
+  const hour=Number(document.getElementById("hour").value);
+  const variable=getVariable();
 
-function weatherText(code) {
-  const texts = {
-    0: "☀️ Αίθριος",
-    1: "🌤️ Κυρίως αίθριος",
-    2: "⛅ Μερική συννεφιά",
-    3: "☁️ Συννεφιά",
-    45: "🌫️ Ομίχλη",
-    48: "🌫️ Παγωμένη ομίχλη",
-    51: "🌦️ Ψιλόβροχο",
-    53: "🌦️ Ψιλόβροχο",
-    55: "🌧️ Έντονο ψιλόβροχο",
-    61: "🌦️ Ασθενής βροχή",
-    63: "🌧️ Βροχή",
-    65: "🌧️ Ισχυρή βροχή",
-    71: "🌨️ Ασθενές χιόνι",
-    73: "🌨️ Χιονόπτωση",
-    75: "❄️ Ισχυρή χιονόπτωση",
-    80: "🌦️ Μπόρες",
-    81: "🌧️ Ισχυρές μπόρες",
-    82: "⛈️ Πολύ ισχυρές μπόρες",
-    95: "⛈️ Καταιγίδα",
-    96: "⛈️ Καταιγίδα με χαλάζι",
-    99: "⛈️ Ισχυρή καταιγίδα με χαλάζι"
-  };
+  document.getElementById("mapTitle").textContent=
+    currentType==="temp"?"🌡️ Θερμοκρασία 850 hPa":
+    currentType==="rain"?"🌧️ Βροχή και χιόνι":"💨 Άνεμος";
 
-  return texts[code] || "Άγνωστος καιρός";
-}
+  document.getElementById("mapStatus").textContent=
+    "Λήψη δεδομένων για "+points.length+" σημεία...";
 
-function formatDate(dateString) {
-  return new Date(dateString + "T12:00:00").toLocaleDateString(
-    "el-GR",
-    {
-      weekday: "short",
-      day: "numeric",
-      month: "short"
-    }
-  );
-}
+  currentData=[];
+  drawMap();
 
-async function getModelForecast(lat, lon, model) {
-  const params = new URLSearchParams({
-    latitude: lat,
-    longitude: lon,
-    daily: "temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code",
-    forecast_days: "15",
-    timezone: "auto",
-    models: model.id
-  });
+  try{
+    const results=await Promise.all(points.map(async p=>{
+      const url=
+        "https://api.open-meteo.com/v1/forecast"+
+        "?latitude="+p.lat+
+        "&longitude="+p.lon+
+        "&hourly="+variable+
+        "&forecast_days=3"+
+        "&timezone=UTC"+
+        "&models="+model;
 
-  const response = await fetch(
-    "https://api.open-meteo.com/v1/forecast?" + params.toString()
-  );
+      const response=await fetch(url);
+      if(!response.ok)throw new Error("HTTP "+response.status);
 
-  if (!response.ok) {
-    throw new Error(model.name + " δεν είναι διαθέσιμο");
-  }
+      const data=await response.json();
+      const values=data.hourly&&data.hourly[variable];
 
-  const data = await response.json();
+      return {
+        lat:p.lat,
+        lon:p.lon,
+        value:values?Number(values[hour]):NaN
+      };
+    }));
 
-  if (!data.daily || !data.daily.time) {
-    throw new Error("Μη έγκυρα δεδομένα");
-  }
+    currentData=results;
+    drawMap();
 
-  return {
-    name: model.name,
-    daily: data.daily
-  };
-}
+    document.getElementById("mapStatus").textContent=
+      "Ο χάρτης φορτώθηκε επιτυχώς.";
 
-async function loadWeather() {
-  if (!citySelect) return;
-
-  const [lat, lon, cityName] = citySelect.value.split(",");
-
-  document.getElementById("cityName").textContent = cityName;
-  statusBox.textContent = "Λήψη δεδομένων από τα διαθέσιμα μοντέλα...";
-
-  const results = await Promise.allSettled(
-    models.map(model => getModelForecast(lat, lon, model))
-  );
-
-  const successful = results
-    .filter(result => result.status === "fulfilled")
-    .map(result => result.value);
-
-  if (successful.length === 0) {
-    statusBox.textContent =
-      "Δεν ήταν δυνατή η λήψη των δεδομένων.";
-    return;
-  }
-
-  const average = values =>
-    values.reduce((sum, value) => sum + value, 0) / values.length;
-
-  const days = successful[0].daily.time.length;
-  const forecastBox = document.getElementById("forecast");
-
-  forecastBox.innerHTML = "";
-
-  for (let day = 0; day < days; day++) {
-    const maxValues = successful
-      .map(item => item.daily.temperature_2m_max[day])
-      .filter(value => typeof value === "number");
-
-    const minValues = successful
-      .map(item => item.daily.temperature_2m_min[day])
-      .filter(value => typeof value === "number");
-
-    const rainValues = successful
-      .map(item => item.daily.precipitation_probability_max?.[day])
-      .filter(value => typeof value === "number");
-
-    const codes = successful
-      .map(item => item.daily.weather_code[day])
-      .filter(value => typeof value === "number");
-
-    if (!maxValues.length || !minValues.length) continue;
-
-    const maxAverage = average(maxValues);
-    const minAverage = average(minValues);
-    const rainAverage = rainValues.length
-      ? average(rainValues)
-      : null;
-
-    const card = document.createElement("div");
-    card.className = "day";
-
-    card.innerHTML = `
-      <strong>${formatDate(successful[0].daily.time[day])}</strong>
-      <div class="icon">${weatherText(codes[0]).split(" ")[0]}</div>
-      <div>${weatherText(codes[0]).substring(2)}</div>
-      <p class="max">⬆️ ${maxAverage.toFixed(1)}°C</p>
-      <p class="min">⬇️ ${minAverage.toFixed(1)}°C</p>
-      <p>🌧️ ${
-        rainAverage === null
-          ? "—"
-          : rainAverage.toFixed(0) + "%"
-      }</p>
+    document.getElementById("legend").innerHTML=`
+      <span style="background:#244bc7">Χαμηλές τιμές</span>
+      <span style="background:#36a9e8">Μέτριες–χαμηλές</span>
+      <span style="background:#f2df54;color:#123">Μέτριες</span>
+      <span style="background:#f28b35">Υψηλές</span>
+      <span style="background:#d62e36">Πολύ υψηλές</span>
     `;
 
-    forecastBox.appendChild(card);
+  }catch(error){
+    console.error(error);
+    document.getElementById("mapStatus").textContent=
+      "Το μοντέλο δεν επέστρεψε δεδομένα για αυτόν τον χάρτη. Δοκίμασε άλλο μοντέλο.";
   }
-
-  const todayMax = successful
-    .map(item => item.daily.temperature_2m_max[0])
-    .filter(value => typeof value === "number");
-
-  const todayMin = successful
-    .map(item => item.daily.temperature_2m_min[0])
-    .filter(value => typeof value === "number");
-
-  document.getElementById("currentTemp").textContent =
-    ((average(todayMax) + average(todayMin)) / 2).toFixed(1) + "°C";
-
-  document.getElementById("avgMax").textContent =
-    average(todayMax).toFixed(1) + "°C";
-
-  document.getElementById("avgMin").textContent =
-    average(todayMin).toFixed(1) + "°C";
-
-  const rainToday = successful
-    .map(item => item.daily.precipitation_probability_max?.[0])
-    .filter(value => typeof value === "number");
-
-  document.getElementById("rain").textContent =
-    rainToday.length
-      ? average(rainToday).toFixed(0) + "%"
-      : "—";
-
-  document.getElementById("modelCount").textContent =
-    successful.length + "/" + models.length;
-
-  document.getElementById("description").textContent =
-    "Μέσος όρος των διαθέσιμων μοντέλων για " + cityName;
-
-  statusBox.textContent =
-    "Η πρόγνωση φορτώθηκε από " +
-    successful.length +
-    " διαθέσιμα μοντέλα.";
 }
 
-if (citySelect) {
-  citySelect.addEventListener("change", loadWeather);
+function icon(code){
+  if(code===0)return"☀️";
+  if(code<=3)return"⛅";
+  if(code<=48)return"🌫️";
+  if(code<=67)return"🌧️";
+  if(code<=77)return"❄️";
+  if(code<=82)return"🌦️";
+  return"⛈️";
+}
+
+async function loadForecast(){
+  const [lat,lon,name]=document.getElementById("city").value.split(",");
+  const status=document.getElementById("forecastStatus");
+  const box=document.getElementById("forecastBox");
+
+  status.textContent="Φόρτωση πρόγνωσης...";
+  box.innerHTML="";
+
+  const url=
+    "https://api.open-meteo.com/v1/forecast"+
+    "?latitude="+lat+
+    "&longitude="+lon+
+    "&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code"+
+    "&forecast_days=15"+
+    "&timezone=auto";
+
+  try{
+    const response=await fetch(url);
+    if(!response.ok)throw new Error("HTTP "+response.status);
+
+    const data=await response.json();
+
+    for(let i=0;i<data.daily.time.length;i++){
+      const date=new Date(data.daily.time[i]+"T12:00:00")
+        .toLocaleDateString("el-GR",{
+          weekday:"short",
+          day:"numeric",
+          month:"short"
+        });
+
+      const div=document.createElement("div");
+      div.className="day";
+      div.innerHTML=`
+        <strong>${date}</strong>
+        <h2>${icon(data.daily.weather_code[i])}</h2>
+        <div>⬆️ ${data.daily.temperature_2m_max[i]}°C</div>
+        <div>⬇️ ${data.daily.temperature_2m_min[i]}°C</div>
+        <div>🌧️ ${data.daily.precipitation_probability_max[i]??"—"}%</div>
+      `;
+      box.appendChild(div);
+    }
+
+    status.textContent="Πρόγνωση για "+name;
+
+  }catch(error){
+    console.error(error);
+    status.textContent="Δεν φορτώθηκε η πρόγνωση. Έλεγξε τη σύνδεση.";
+  }
 }
 </script>
-
 </body>
 </html>
