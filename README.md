@@ -416,7 +416,7 @@ body{
 
 
 /* =====================================
-   ΙΣΤΟΡΙΚΟ 1 ΜΗΝΑ
+   ΙΣΤΟΡΙΚΟ 3 ΜΗΝΩΝ
 ===================================== */
 
 .history-section{
@@ -644,42 +644,13 @@ body{
             id="menu"
             class="menu">
 
-
-            <button
-                class="menu-item"
-                onclick="refreshWeather()">
-
-                🔄 Ανανέωση δεδομένων
-
-            </button>
-
-
             <button
                 class="menu-item"
                 onclick="loadHistory()">
 
-                📜 Ιστορικό καιρού — τελευταίος 1 μήνας
+                📜 Ιστορικό καιρού — τελευταίοι 3 μήνες
 
             </button>
-
-
-            <button
-                class="menu-item"
-                onclick="closeHourly(); closeMenu();">
-
-                🕐 Κλείσιμο ωριαίας
-
-            </button>
-
-
-            <button
-                class="menu-item"
-                onclick="goTop(); closeMenu();">
-
-                ⬆️ Πάνω
-
-            </button>
-
 
         </div>
 
@@ -786,7 +757,7 @@ body{
 
             <h3 id="historyTitle">
 
-                📜 Ιστορικό καιρού — τελευταίος 1 μήνας
+                📜 Ιστορικό καιρού — τελευταίοι 3 μήνες
 
             </h3>
 
@@ -902,7 +873,7 @@ function goTop(){
 
 
 /* =====================================
-   ΙΣΤΟΡΙΚΟ 1 ΜΗΝΑ
+   ΙΣΤΟΡΙΚΟ 3 ΜΗΝΩΝ
 ===================================== */
 
 async function loadHistory(){
@@ -975,7 +946,7 @@ async function loadHistory(){
 
 
         startDate.setDate(
-            startDate.getDate() - 29
+            startDate.getDate() - 89
         );
 
 
@@ -1259,7 +1230,7 @@ function renderHistory(data){
 
         locationData.name +
 
-        " — τελευταίες 30 ημέρες";
+        " — τελευταίοι 3 μήνες";
 
 }
 
