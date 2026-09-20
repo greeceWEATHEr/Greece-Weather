@@ -1,17 +1,7 @@
-<!DOCTYPE html>
-<html lang="el">
+<!DOCTYPE html><html lang="el"><head><meta charset="UTF-8"><meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-<head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-
-<title>Greece Weather</title>
-
-
-<style>
+<title>Greece Weather</title><style>
 
 *{
     box-sizing:border-box;
@@ -416,7 +406,7 @@ body{
 
 
 /* =====================================
-   ΙΣΤΟΡΙΚΟ 3 ΜΗΝΩΝ
+   ΙΣΤΟΡΙΚΟ 12 ΜΗΝΩΝ
 ===================================== */
 
 .history-section{
@@ -600,210 +590,194 @@ body{
 
 }
 
-</style>
+</style></head><body><div class="container"><!-- =================================
+     HEADER
+================================= -->
 
-</head>
+<div class="header">
 
+    <h1>
+        🇬🇷 Greece Weather
+    </h1>
 
-<body>
-
-
-<div class="container">
-
-
-    <!-- =================================
-         HEADER
-    ================================= -->
-
-    <div class="header">
-
-        <h1>
-            🇬🇷 Greece Weather
-        </h1>
-
-        <p>
-            Πρόγνωση καιρού για όλη την Ελλάδα
-        </p>
+    <p>
+        Πρόγνωση καιρού για όλη την Ελλάδα
+    </p>
 
 
-        <!-- MENU BUTTON -->
+    <!-- MENU BUTTON -->
 
-        <button
-            class="menu-button"
-            onclick="toggleMenu()"
-            aria-label="Μενού">
+    <button
+        class="menu-button"
+        onclick="toggleMenu()"
+        aria-label="Μενού">
 
-            ☰
+        ☰
 
-        </button>
-
-
-        <!-- MENU -->
-
-        <div
-            id="menu"
-            class="menu">
-
-            <button
-                class="menu-item"
-                onclick="loadHistory()">
-
-                📜 Ιστορικό καιρού — τελευταίοι 3 μήνες
-
-            </button>
-
-        </div>
-
-    </div>
+    </button>
 
 
-    <!-- =================================
-         SEARCH
-    ================================= -->
+    <!-- MENU -->
 
-    <div class="search">
-
-        <input
-            id="cityInput"
-            placeholder="Γράψε πόλη..."
-            value="Θεσσαλονίκη"
-        >
+    <div
+        id="menu"
+        class="menu">
 
         <button
-            onclick="searchCity()">
+            class="menu-item"
+            onclick="loadHistory()">
 
-            Αναζήτηση
+            📜 Ιστορικό καιρού — τελευταίοι 12 μήνες
 
         </button>
 
     </div>
 
-
-    <!-- =================================
-         CURRENT
-    ================================= -->
-
-    <div id="current"></div>
+</div>
 
 
-    <!-- =================================
-         15 DAYS
-    ================================= -->
+<!-- =================================
+     SEARCH
+================================= -->
 
-    <div class="section-title">
+<div class="search">
 
-        📅 Πρόγνωση 15 ημερών
+    <input
+        id="cityInput"
+        placeholder="Γράψε πόλη..."
+        value="Θεσσαλονίκη"
+    >
+
+    <button
+        onclick="searchCity()">
+
+        Αναζήτηση
+
+    </button>
+
+</div>
+
+
+<!-- =================================
+     CURRENT
+================================= -->
+
+<div id="current"></div>
+
+
+<!-- =================================
+     15 DAYS
+================================= -->
+
+<div class="section-title">
+
+    📅 Πρόγνωση 15 ημερών
+
+</div>
+
+
+<div
+    id="forecast"
+    class="forecast">
+
+    <div class="loading">
+
+        Φόρτωση πρόγνωσης...
+
+    </div>
+
+</div>
+
+
+<!-- =================================
+     HOURLY
+================================= -->
+
+<div
+    id="hourlySection"
+    class="hourly-section">
+
+
+    <div class="hourly-header">
+
+        <h3 id="hourlyTitle"></h3>
+
+
+        <button
+            class="close-hourly"
+            onclick="closeHourly()">
+
+            ✕ Κλείσιμο
+
+        </button>
 
     </div>
 
 
     <div
-        id="forecast"
-        class="forecast">
-
-        <div class="loading">
-
-            Φόρτωση πρόγνωσης...
-
-        </div>
-
-    </div>
-
-
-    <!-- =================================
-         HOURLY
-    ================================= -->
-
-    <div
-        id="hourlySection"
-        class="hourly-section">
-
-
-        <div class="hourly-header">
-
-            <h3 id="hourlyTitle"></h3>
-
-
-            <button
-                class="close-hourly"
-                onclick="closeHourly()">
-
-                ✕ Κλείσιμο
-
-            </button>
-
-        </div>
-
-
-        <div
-            id="hourly"
-            class="hourly">
-        </div>
-
-
-    </div>
-
-
-    <!-- =================================
-         ΙΣΤΟΡΙΚΟ
-    ================================= -->
-
-    <div
-        id="historySection"
-        class="history-section">
-
-
-        <div class="history-header">
-
-            <h3 id="historyTitle">
-
-                📜 Ιστορικό καιρού — τελευταίοι 3 μήνες
-
-            </h3>
-
-
-            <button
-                class="close-history"
-                onclick="closeHistory()">
-
-                ✕ Κλείσιμο
-
-            </button>
-
-        </div>
-
-
-        <div
-            id="history"
-            class="history">
-        </div>
-
-
-    </div>
-
-
-    <!-- =================================
-         INFO
-    ================================= -->
-
-    <div class="model-info">
-
-        ECMWF IFS HRES • NOAA GFS • DWD ICON
-
-        <br>
-
-        Τα δεδομένα ανανεώνονται αυτόματα
-        σύμφωνα με τους κύκλους έκδοσης
-        των μοντέλων.
-
+        id="hourly"
+        class="hourly">
     </div>
 
 
 </div>
 
 
+<!-- =================================
+     ΙΣΤΟΡΙΚΟ
+================================= -->
 
-<script>
+<div
+    id="historySection"
+    class="history-section">
+
+
+    <div class="history-header">
+
+        <h3 id="historyTitle">
+
+            📜 Ιστορικό καιρού — τελευταίοι 12 μήνες
+
+        </h3>
+
+
+        <button
+            class="close-history"
+            onclick="closeHistory()">
+
+            ✕ Κλείσιμο
+
+        </button>
+
+    </div>
+
+
+    <div
+        id="history"
+        class="history">
+    </div>
+
+
+</div>
+
+
+<!-- =================================
+     INFO
+================================= -->
+
+<div class="model-info">
+
+    ECMWF IFS HRES • NOAA GFS • DWD ICON
+
+    <br>
+
+    Τα δεδομένα ανανεώνονται αυτόματα
+    σύμφωνα με τους κύκλους έκδοσης
+    των μοντέλων.
+
+</div>
+
+</div><script>
 
 
 /* =====================================
@@ -873,7 +847,7 @@ function goTop(){
 
 
 /* =====================================
-   ΙΣΤΟΡΙΚΟ 3 ΜΗΝΩΝ
+   ΙΣΤΟΡΙΚΟ 12 ΜΗΝΩΝ
 ===================================== */
 
 async function loadHistory(){
@@ -946,7 +920,7 @@ async function loadHistory(){
 
 
         startDate.setDate(
-            startDate.getDate() - 89
+            startDate.getDate() - 364
         );
 
 
@@ -1230,7 +1204,7 @@ function renderHistory(data){
 
         locationData.name +
 
-        " — τελευταίοι 3 μήνες";
+        " — τελευταίοι 12 μήνες";
 
 }
 
@@ -2533,9 +2507,4 @@ document
 searchCity();
 
 
-</script>
-
-
-</body>
-
-</html>
+</script></body></html>
