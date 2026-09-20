@@ -574,6 +574,27 @@ body{
     justify-content:center;
 }
 
+/* Η θερμοκρασία ημέρας και νύχτας
+   εμφανίζεται κατακόρυφα */
+.history-temperature{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:2px;
+    font-size:12px;
+    line-height:1.25;
+    text-align:center;
+}
+
+.history-temperature .day-temp{
+    font-weight:bold;
+}
+
+.history-temperature .night-temp{
+    color:#d0d7df;
+}
+
 .history-data{
     font-size:12px;
     color:#e4e8ed;
@@ -762,6 +783,10 @@ body{
         font-size:11px;
     }
 
+    .history-temperature{
+        font-size:10px;
+    }
+
     .history-hour{
         grid-template-columns:
             50px
@@ -839,6 +864,10 @@ body{
 
     .history-data{
         font-size:10px;
+    }
+
+    .history-temperature{
+        font-size:9px;
     }
 
     .history-hourly-title{
@@ -1089,6 +1118,8 @@ let weatherData = null;
 
 let locationData = null;
 
+let historyYears = 1;
+
 
 
 /* =====================================
@@ -1166,6 +1197,8 @@ async function loadHistory(years){
         return;
 
     }
+
+    historyYears = years;
 
 
     const historySection =
@@ -1393,91 +1426,7 @@ function loadHistoryMonths(
 
 function showHistoryYearsFromMenu(){
 
-    /*
-     * Το πόσα έτη θα εμφανίσουμε
-     * το βρίσκουμε από την τρέχουσα
-     * επιλογή του ιστορικού.
-     */
-
-    const currentYear =
-        new Date().getFullYear();
-
-
-    const history =
-        document.getElementById(
-            "history"
-        );
-
-
-    let html = `
-
-        <div class="history-navigation">
-
-            <button
-                class="history-back-button"
-                onclick="closeHistory()">
-
-                ✕ Κλείσιμο
-
-            </button>
-
-        </div>
-
-        <div class="history-years">
-
-    `;
-
-
-    /*
-     * Εμφανίζουμε μέχρι 10 χρόνια.
-     * Έτσι η επιστροφή λειτουργεί
-     * ανεξάρτητα από το ποια επιλογή
-     * άνοιξε αρχικά ο χρήστης.
-     */
-
-    for(
-        let i = 0;
-        i < 10;
-        i++
-    ){
-
-        const year =
-            currentYear - i;
-
-
-        html += `
-
-            <button
-                class="history-year-button"
-                onclick="loadHistoryMonths(${year})">
-
-                📅 ${year}
-
-            </button>
-
-        `;
-
-    }
-
-
-    html += `
-
-        </div>
-
-    `;
-
-
-    history.innerHTML =
-        html;
-
-
-    document
-        .getElementById("historyTitle")
-        .innerText =
-
-        "📜 Ιστορικό καιρού — " +
-        locationData.name +
-        " — επίλεξε έτος";
+    renderHistoryYears(historyYears);
 
 }
 
@@ -1544,11 +1493,6 @@ async function loadHistoryMonth(
             "-01";
 
 
-        /*
-         * Ημέρα 0 του επόμενου μήνα
-         * = τελευταία ημέρα του μήνα.
-         */
-
         const lastDay =
             new Date(
                 year,
@@ -1586,6 +1530,7 @@ async function loadHistoryMonth(
             "temperature_2m_max," +
             "temperature_2m_min," +
             "precipitation_sum," +
+            "precipitation_probability_max," +
             "snowfall_sum," +
             "wind_speed_10m_max" +
 
@@ -1736,6 +1681,13 @@ function renderHistoryMonth(
             );
 
 
+        const rain =
+            Math.round(
+                d.precipitation_probability_max[i]
+                || 0
+            );
+
+
         const precipitation =
             Number(
                 d.precipitation_sum[i]
@@ -1761,7 +1713,7 @@ function renderHistoryMonth(
             weatherIcon(
                 code,
                 true,
-                precipitation > 0 ? 30 : 0,
+                rain,
                 snowfall
             );
 
@@ -1770,6 +1722,7 @@ function renderHistoryMonth(
 
             <div
                 class="history-day"
+                title="${date.date}"
                 onclick="showHistoryHourly('${d.time[i]}', this)"
             >
 
@@ -1787,30 +1740,26 @@ function renderHistoryMonth(
                 </div>
 
 
-                <div class="history-data">
+                <div class="history-temperature">
 
-                    🌡️
-                    <b>${max}°</b>
-                    /
-                    ${min}°
+                    <div class="day-temp">
 
-                </div>
+                        ☀️ ${max}°
 
+                    </div>
 
-                <div class="history-data">
+                    <div class="night-temp">
 
-                    💧
-                    ${precipitation.toFixed(1)}
-                    mm
+                        🌙 ${min}°
+
+                    </div>
 
                 </div>
 
 
                 <div class="history-data">
 
-                    🌬️
-                    ${wind}
-                    km/h
+                    💧 ${rain}%
 
                 </div>
 
@@ -2736,12 +2685,6 @@ function formatHistoryDateOnly(
             "T12:00:00"
         );
 
-
-    /*
-     * Χρησιμοποιούμε String()
-     * ώστε η πλήρης ημερομηνία να
-     * παραμένει πάντα ολόκληρη.
-     */
 
     return (
 
