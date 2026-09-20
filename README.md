@@ -602,6 +602,91 @@ body{
 
 
 /* =====================================
+   ΩΡΙΑΙΑ ΠΡΟΓΝΩΣΗ ΙΣΤΟΡΙΚΟΥ
+   ΙΔΙΟ ΣΤΥΛ ΜΕ ΤΗΝ ΚΑΝΟΝΙΚΗ
+===================================== */
+
+.history-hourly{
+    grid-column:1 / -1;
+    width:100%;
+    margin-top:4px;
+    margin-bottom:4px;
+    background:
+        rgba(5,27,50,.72);
+    border-radius:20px;
+    padding:20px;
+}
+
+.history-hourly-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.3);
+    padding-bottom:15px;
+    margin-bottom:15px;
+}
+
+.history-hourly-header h3{
+    margin:0;
+    font-size:21px;
+}
+
+.close-history-hourly{
+    background:
+        rgba(255,255,255,.15);
+    border:0;
+    color:white;
+    border-radius:10px;
+    padding:8px 13px;
+    cursor:pointer;
+}
+
+.history-hourly-list{
+    display:grid;
+    gap:8px;
+}
+
+.history-hour{
+    display:grid;
+    grid-template-columns:
+        70px
+        50px
+        1fr
+        1fr
+        1fr
+        1fr;
+    align-items:center;
+    background:
+        rgba(65,96,130,.62);
+    border-radius:12px;
+    padding:12px 10px;
+    gap:8px;
+}
+
+.history-hour-time{
+    font-weight:bold;
+}
+
+.history-hour-icon{
+    font-size:25px;
+    text-align:center;
+    height:32px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.history-hour-data{
+    font-size:13px;
+    color:#e4e8ed;
+    line-height:1.5;
+}
+
+
+/* =====================================
    MODEL INFO
 ===================================== */
 
@@ -690,6 +775,26 @@ body{
         font-size:10px;
     }
 
+
+    /* ΙΔΙΟ RESPONSIVE ΣΧΗΜΑ ΜΕ ΤΗΝ ΚΑΝΟΝΙΚΗ ΩΡΙΑΙΑ */
+
+    .history-hourly{
+        padding:20px;
+    }
+
+    .history-hour{
+        grid-template-columns:
+            55px
+            40px
+            1fr
+            1fr;
+    }
+
+    .history-hour-data:nth-child(5),
+    .history-hour-data:nth-child(6){
+        display:none;
+    }
+
 }
 
 
@@ -758,6 +863,83 @@ body{
 
     .history-temperature{
         font-size:9px;
+    }
+
+    .history-hourly{
+        padding:15px;
+        border-radius:16px;
+    }
+
+    .history-hourly-header h3{
+        font-size:17px;
+    }
+
+    .history-hourly{
+        grid-column:1 / -1;
+    }
+
+    .history-hour{
+        grid-template-columns:
+            48px
+            36px
+            1fr
+            1fr;
+        padding:10px 7px;
+        gap:6px;
+    }
+
+    .history-hour-data{
+        font-size:11px;
+    }
+
+    .history-hour-icon{
+        font-size:22px;
+    }
+
+}
+
+
+/* =====================================
+   HISTORY DATE — COMPACT
+===================================== */
+
+.history-date{
+    line-height:1.1;
+}
+
+.history-date .history-day-number{
+    display:block;
+    font-size:14px;
+    font-weight:bold;
+}
+
+.history-date .history-month-year{
+    display:block;
+    font-size:10px;
+    color:#d0d7df;
+    margin-top:2px;
+}
+
+@media(max-width:750px){
+
+    .history-date .history-day-number{
+        font-size:13px;
+    }
+
+    .history-date .history-month-year{
+        font-size:9px;
+    }
+
+}
+
+@media(max-width:430px){
+
+    .history-date .history-day-number{
+        font-size:12px;
+    }
+
+    .history-date .history-month-year{
+        font-size:8px;
     }
 
 }
@@ -1417,8 +1599,7 @@ async function loadHistoryMonth(
             "temperature_2m_min," +
             "precipitation_sum," +
             "precipitation_hours," +
-            "snowfall_sum," +
-            "wind_speed_10m_max" +
+            "snowfall_sum" +
 
             "&models=era5_seamless" +
 
@@ -1568,12 +1749,9 @@ function renderHistoryMonth(
 
 
         /*
-         * Το ιστορικό API δεν παρέχει
-         * αξιόπιστο precipitation probability
-         * για τις παλιές ημέρες.
-         *
-         * Χρησιμοποιούμε τις precipitation_hours:
-         * ποσοστό = ώρες με υετό / 24 ώρες.
+         * Ιστορικός υετός:
+         * ποσοστό των ωρών της ημέρας
+         * κατά τις οποίες υπήρχε υετός.
          */
 
         const precipitationHours =
@@ -1595,18 +1773,19 @@ function renderHistoryMonth(
             );
 
 
-        const precipitation =
-            Number(
-                d.precipitation_sum[i]
-                || 0
-            );
-
-
         const snowfall =
             Number(
                 d.snowfall_sum[i]
                 || 0
             );
+
+
+        const hasSnow =
+            snowfall > 0 ||
+            [
+                71,73,75,77,
+                85,86
+            ].includes(code);
 
 
         const icon =
@@ -1618,16 +1797,43 @@ function renderHistoryMonth(
             );
 
 
+        const precipitationIcon =
+            hasSnow
+                ? "❄️"
+                : "💧";
+
+
         html += `
 
             <div
                 class="history-day"
+                onclick="showHistoryHourly('${d.time[i]}', this)"
                 title="${date.date}"
             >
 
                 <div class="history-date">
 
-                    ${date.date}
+                    <span class="history-day-number">
+
+                        ${String(
+                            new Date(
+                                d.time[i] +
+                                "T12:00:00"
+                            ).getDate()
+                        )}
+
+                    </span>
+
+                    <span class="history-month-year">
+
+                        ${String(
+                            new Date(
+                                d.time[i] +
+                                "T12:00:00"
+                            ).getMonth() + 1
+                        )}/${year}
+
+                    </span>
 
                 </div>
 
@@ -1658,7 +1864,7 @@ function renderHistoryMonth(
 
                 <div class="history-data">
 
-                    💧 ${rain}%
+                    ${precipitationIcon} ${rain}%
 
                 </div>
 
@@ -1695,6 +1901,412 @@ function renderHistoryMonth(
         " " +
 
         year;
+
+}
+
+
+
+/* =====================================
+   ΙΣΤΟΡΙΚΗ ΩΡΙΑΙΑ ΠΡΟΓΝΩΣΗ
+   ΙΔΙΟ ΣΤΥΛ ΜΕ ΤΗΝ ΚΑΝΟΝΙΚΗ
+===================================== */
+
+async function showHistoryHourly(
+    date,
+    dayElement
+){
+
+    const historyDays =
+        dayElement.parentElement;
+
+
+    const oldHourly =
+        historyDays.querySelector(
+            ".history-hourly"
+        );
+
+
+    if(oldHourly){
+
+        oldHourly.remove();
+
+    }
+
+
+    const historyHourly =
+        document.createElement("div");
+
+
+    historyHourly.className =
+        "history-hourly";
+
+
+    historyHourly.innerHTML = `
+
+        <div class="history-hourly-header">
+
+            <h3>
+
+                Ωριαία πρόγνωση — ${formatDate(date).date}
+
+            </h3>
+
+            <button
+                class="close-history-hourly"
+                onclick="this.closest('.history-hourly').remove()">
+
+                ✕ Κλείσιμο
+
+            </button>
+
+        </div>
+
+        <div class="history-hourly-list">
+
+            <div class="loading">
+
+                Φόρτωση ωριαίας πρόγνωσης...
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    historyDays.insertBefore(
+        historyHourly,
+        dayElement.nextSibling
+    );
+
+
+    try{
+
+        const url =
+
+            "https://archive-api.open-meteo.com/v1/archive" +
+
+            "?latitude=" +
+            locationData.latitude +
+
+            "&longitude=" +
+            locationData.longitude +
+
+            "&start_date=" +
+            date +
+
+            "&end_date=" +
+            date +
+
+            "&hourly=" +
+            "temperature_2m," +
+            "relative_humidity_2m," +
+            "apparent_temperature," +
+            "precipitation," +
+            "snowfall," +
+            "weather_code," +
+            "cloud_cover," +
+            "wind_speed_10m," +
+            "wind_direction_10m," +
+            "wind_gusts_10m," +
+            "is_day" +
+
+            "&timezone=auto";
+
+
+        const response =
+            await fetch(url);
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "Historical hourly request failed"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if(
+            !data.hourly ||
+            !data.hourly.time
+        ){
+
+            throw new Error(
+                "No hourly history data"
+            );
+
+        }
+
+
+        renderHistoryHourly(
+            data,
+            historyHourly,
+            date
+        );
+
+
+    }catch(error){
+
+        console.error(error);
+
+
+        const list =
+            historyHourly.querySelector(
+                ".history-hourly-list"
+            );
+
+
+        list.innerHTML = `
+
+            <div class="loading">
+
+                Δεν ήταν δυνατή η φόρτωση
+                της ωριαίας πρόγνωσης.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+
+/* =====================================
+   RENDER ΙΣΤΟΡΙΚΗΣ ΩΡΙΑΙΑΣ
+===================================== */
+
+function renderHistoryHourly(
+    data,
+    container,
+    date
+){
+
+    const d =
+        data.hourly;
+
+
+    const list =
+        container.querySelector(
+            ".history-hourly-list"
+        );
+
+
+    let html = "";
+
+
+    for(
+        let i = 0;
+        i < d.time.length;
+        i++
+    ){
+
+        const hour =
+            d.time[i]
+            .substring(11,16);
+
+
+        const temp =
+            Math.round(
+                d.temperature_2m[i]
+            );
+
+
+        const feels =
+            Math.round(
+                d.apparent_temperature[i]
+            );
+
+
+        const precipitation =
+            Number(
+                d.precipitation[i]
+                || 0
+            );
+
+
+        const snowfall =
+            Number(
+                d.snowfall[i]
+                || 0
+            );
+
+
+        /*
+         * Το ιστορικό API δεν δίνει
+         * forecast probability.
+         *
+         * Για να διατηρείται το ίδιο οπτικό
+         * σχήμα με την κανονική ωριαία,
+         * χρησιμοποιούμε 100% όταν υπάρχει
+         * μετρήσιμος υετός εκείνη την ώρα,
+         * διαφορετικά 0%.
+         */
+
+        const precipitationPercent =
+            precipitation > 0 || snowfall > 0
+                ? 100
+                : 0;
+
+
+        const clouds =
+            Math.round(
+                d.cloud_cover[i] || 0
+            );
+
+
+        const wind =
+            Math.round(
+                d.wind_speed_10m[i] || 0
+            );
+
+
+        const windDir =
+            windDirection(
+                d.wind_direction_10m[i]
+            );
+
+
+        const windGust =
+            Math.round(
+                d.wind_gusts_10m[i] || 0
+            );
+
+
+        const isDay =
+            d.is_day[i] === 1;
+
+
+        const code =
+            Number(
+                d.weather_code[i] || 0
+            );
+
+
+        const icon =
+            weatherIcon(
+                code,
+                isDay,
+                precipitationPercent,
+                snowfall
+            );
+
+
+        let precipitationHTML = "";
+
+
+        if(snowfall > 0){
+
+            precipitationHTML = `
+
+                ❄️ ${precipitationPercent}%
+
+                <br>
+
+                ${snowfall.toFixed(1)} cm
+
+            `;
+
+        }else{
+
+            precipitationHTML = `
+
+                💧 ${precipitationPercent}%
+
+                <br>
+
+                ${precipitation.toFixed(1)} mm
+
+            `;
+
+        }
+
+
+        html += `
+
+            <div class="history-hour">
+
+
+                <div class="history-hour-time">
+
+                    ${hour}
+
+                </div>
+
+
+                <div class="history-hour-icon">
+
+                    ${icon}
+
+                </div>
+
+
+                <div class="history-hour-data">
+
+                    🌡️
+
+                    <b>
+                        ${temp}°
+                    </b>
+
+                    <br>
+
+                    Αίσθηση
+                    ${feels}°
+
+                </div>
+
+
+                <div class="history-hour-data">
+
+                    ${precipitationHTML}
+
+                </div>
+
+
+                <div class="history-hour-data">
+
+                    ☁️
+                    ${clouds}%
+
+                </div>
+
+
+                <div class="history-hour-data">
+
+                    🌬️
+                    ${wind} km/h
+
+                    <br>
+
+                    Διεύθυνση:
+                    <b>
+                        ${windDir}
+                    </b>
+
+                    <br>
+
+                    Ριπές:
+                    ${windGust} km/h
+
+                </div>
+
+
+            </div>
+
+        `;
+
+    }
+
+
+    list.innerHTML =
+        html;
 
 }
 
@@ -2647,6 +3259,14 @@ function renderForecast(){
 
         let precipitationInfo =
             `💧 ${Math.round(rain)}%`;
+
+
+        if(snow > 0){
+
+            precipitationInfo =
+                `❄️ ${Math.round(rain)}%`;
+
+        }
 
 
         html += `
