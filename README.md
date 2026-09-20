@@ -360,7 +360,7 @@ body{
 
 
 /* =====================================
-   ΧΑΡΤΗΣ
+   ΧΑΡΤΕΣ
 ===================================== */
 
 .map-section{
@@ -381,16 +381,29 @@ body{
     margin-bottom:15px;
 }
 
-#map{
+#map,
+#precipitationMap{
     width:100%;
     height:380px;
     border-radius:15px;
     overflow:hidden;
 }
 
+.precipitation-section{
+    margin-top:22px;
+}
+
+.precipitation-info{
+    margin-top:10px;
+    font-size:12px;
+    color:#cbd8e5;
+    line-height:1.5;
+}
+
 @media(max-width:750px){
 
-    #map{
+    #map,
+    #precipitationMap{
         height:330px;
     }
 
@@ -597,7 +610,7 @@ body{
 
 
     <!-- =================================
-         MAP
+         ΧΑΡΤΗΣ ΠΕΡΙΟΧΗΣ
     ================================= -->
 
     <div class="map-section">
@@ -610,12 +623,38 @@ body{
 
         <div id="map"></div>
 
+
+        <!-- =================================
+             ΧΑΡΤΗΣ ΥΕΤΟΥ
+        ================================= -->
+
+        <div class="precipitation-section">
+
+            <div class="map-title">
+
+                🌧️ Χάρτης υετού
+
+            </div>
+
+            <div id="precipitationMap"></div>
+
+            <div class="precipitation-info">
+
+                🌧️ Radar βροχής/υετού σε πραγματικό χρόνο.
+                <br>
+                Τα χρώματα δείχνουν τις περιοχές όπου
+                ανιχνεύεται υετός.
+
+            </div>
+
+        </div>
+
     </div>
 
 
     <!-- =================================
          INFO
-===================================== -->
+    ================================= -->
 
     <div class="model-info">
 
@@ -700,6 +739,209 @@ function updateMap(
         .openPopup();
 
 }
+
+
+
+/* =====================================
+   ΧΑΡΤΗΣ ΥΕΤΟΥ / RADAR
+===================================== */
+
+let precipitationMap =
+    L.map("precipitationMap").setView(
+        [40.6401,22.9444],
+        6
+    );
+
+
+L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+        attribution:
+            "&copy; OpenStreetMap contributors"
+    }
+).addTo(precipitationMap);
+
+
+let precipitationMarker =
+    L.marker(
+        [40.6401,22.9444]
+    )
+    .addTo(precipitationMap)
+    .bindPopup(
+        "Θεσσαλονίκη"
+    );
+
+
+let precipitationRadar = null;
+
+
+/* =====================================
+   ΦΟΡΤΩΣΗ RADAR
+===================================== */
+
+async function loadPrecipitationRadar(){
+
+    try{
+
+        const response =
+            await fetch(
+                "https://api.rainviewer.com/public/weather-maps.json"
+            );
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "RainViewer API error"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if(
+            !data.radar ||
+            !data.radar.past ||
+            !data.radar.past.length
+        ){
+
+            console.log(
+                "Δεν υπάρχει διαθέσιμο radar."
+            );
+
+            return;
+
+        }
+
+
+        /*
+           Παίρνουμε το πιο πρόσφατο
+           διαθέσιμο radar frame.
+        */
+
+        const latest =
+            data.radar.past[
+                data.radar.past.length - 1
+            ];
+
+
+        /*
+           Το RainViewer επιστρέφει
+           host + path.
+        */
+
+        const radarUrl =
+
+            data.host +
+
+            latest.path +
+
+            "/256/{z}/{x}/{y}/2/1_1.png";
+
+
+        /*
+           Αφαιρούμε το προηγούμενο
+           radar layer.
+        */
+
+        if(precipitationRadar){
+
+            precipitationMap.removeLayer(
+                precipitationRadar
+            );
+
+        }
+
+
+        /*
+           Νέο πραγματικό radar layer.
+        */
+
+        precipitationRadar =
+
+            L.tileLayer(
+                radarUrl,
+                {
+                    opacity:0.78,
+                    maxZoom:7,
+                    minZoom:2,
+                    attribution:
+                        'Radar υετού: <a href="https://www.rainviewer.com/" target="_blank">RainViewer</a>'
+                }
+            );
+
+
+        precipitationRadar.addTo(
+            precipitationMap
+        );
+
+
+    }catch(error){
+
+        console.error(
+            "Σφάλμα φόρτωσης radar:",
+            error
+        );
+
+    }
+
+}
+
+
+
+/* =====================================
+   ΕΝΗΜΕΡΩΣΗ ΧΑΡΤΗ ΥΕΤΟΥ
+===================================== */
+
+function updatePrecipitationMap(
+    latitude,
+    longitude,
+    name
+){
+
+    precipitationMap.setView(
+        [
+            latitude,
+            longitude
+        ],
+        7
+    );
+
+
+    precipitationMarker.setLatLng([
+        latitude,
+        longitude
+    ]);
+
+
+    precipitationMarker
+        .bindPopup(name)
+        .openPopup();
+
+}
+
+
+
+/* =====================================
+   ΑΡΧΙΚΗ ΦΟΡΤΩΣΗ RADAR
+===================================== */
+
+loadPrecipitationRadar();
+
+
+
+/* =====================================
+   ΑΝΑΝΕΩΣΗ RADAR
+   Κάθε 10 λεπτά
+===================================== */
+
+setInterval(
+    loadPrecipitationRadar,
+    10 * 60 * 1000
+);
 
 
 
@@ -1153,9 +1395,18 @@ async function searchCity(){
         };
 
 
-        /* ΕΝΗΜΕΡΩΣΗ ΧΑΡΤΗ */
+        /* ΕΝΗΜΕΡΩΣΗ ΠΡΩΤΟΥ ΧΑΡΤΗ */
 
         updateMap(
+            locationData.latitude,
+            locationData.longitude,
+            locationData.name
+        );
+
+
+        /* ΕΝΗΜΕΡΩΣΗ ΧΑΡΤΗ ΥΕΤΟΥ */
+
+        updatePrecipitationMap(
             locationData.latitude,
             locationData.longitude,
             locationData.name
