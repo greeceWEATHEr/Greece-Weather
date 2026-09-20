@@ -44,9 +44,10 @@ body{
 ===================================== */
 
 .header{
+    position:relative;
     background:
         rgba(3,20,38,.72);
-    padding:28px 20px;
+    padding:28px 60px 28px 20px;
     text-align:center;
     margin-bottom:25px;
 }
@@ -60,6 +61,67 @@ body{
     margin:18px 0 0;
     color:#d6dce4;
     font-size:16px;
+}
+
+
+/* =====================================
+   MENU
+===================================== */
+
+.menu-button{
+    position:absolute;
+    top:18px;
+    right:18px;
+    width:43px;
+    height:43px;
+    border:0;
+    border-radius:12px;
+    background:rgba(255,255,255,.12);
+    color:#fff;
+    font-size:25px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:.18s;
+}
+
+.menu-button:hover{
+    background:rgba(255,255,255,.22);
+}
+
+.menu{
+    display:none;
+    position:absolute;
+    top:68px;
+    right:18px;
+    width:210px;
+    background:rgba(5,27,50,.97);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:15px;
+    padding:8px;
+    z-index:1000;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+.menu.open{
+    display:block;
+}
+
+.menu-item{
+    width:100%;
+    border:0;
+    background:transparent;
+    color:#fff;
+    text-align:left;
+    padding:13px 12px;
+    border-radius:10px;
+    font-size:14px;
+    cursor:pointer;
+}
+
+.menu-item:hover{
+    background:rgba(255,255,255,.12);
 }
 
 
@@ -448,6 +510,10 @@ body{
 <div class="container">
 
 
+    <!-- =================================
+         HEADER
+    ================================= -->
+
     <div class="header">
 
         <h1>
@@ -458,8 +524,61 @@ body{
             Πρόγνωση καιρού για όλη την Ελλάδα
         </p>
 
+
+        <!-- MENU BUTTON -->
+
+        <button
+            class="menu-button"
+            onclick="toggleMenu()"
+            aria-label="Μενού">
+
+            ☰
+
+        </button>
+
+
+        <!-- MENU -->
+
+        <div
+            id="menu"
+            class="menu">
+
+
+            <button
+                class="menu-item"
+                onclick="refreshWeather()">
+
+                🔄 Ανανέωση δεδομένων
+
+            </button>
+
+
+            <button
+                class="menu-item"
+                onclick="closeHourly(); closeMenu();">
+
+                🕐 Κλείσιμο ωριαίας
+
+            </button>
+
+
+            <button
+                class="menu-item"
+                onclick="goTop(); closeMenu();">
+
+                ⬆️ Πάνω
+
+            </button>
+
+
+        </div>
+
     </div>
 
+
+    <!-- =================================
+         SEARCH
+    ================================= -->
 
     <div class="search">
 
@@ -479,8 +598,16 @@ body{
     </div>
 
 
+    <!-- =================================
+         CURRENT
+    ================================= -->
+
     <div id="current"></div>
 
+
+    <!-- =================================
+         15 DAYS
+    ================================= -->
 
     <div class="section-title">
 
@@ -501,6 +628,10 @@ body{
 
     </div>
 
+
+    <!-- =================================
+         HOURLY
+    ================================= -->
 
     <div
         id="hourlySection"
@@ -532,6 +663,10 @@ body{
     </div>
 
 
+    <!-- =================================
+         INFO
+    ================================= -->
+
     <div class="model-info">
 
         ECMWF IFS HRES • NOAA GFS • DWD ICON
@@ -552,6 +687,10 @@ body{
 <script>
 
 
+/* =====================================
+   GLOBAL
+===================================== */
+
 let weatherData = null;
 
 let locationData = null;
@@ -559,23 +698,114 @@ let locationData = null;
 
 
 /* =====================================
-   ΣΗΜΑΙΑ
+   MENU
+===================================== */
+
+function toggleMenu(){
+
+    const menu =
+        document.getElementById("menu");
+
+    menu.classList.toggle("open");
+
+}
+
+
+function closeMenu(){
+
+    document
+        .getElementById("menu")
+        .classList.remove("open");
+
+}
+
+
+function refreshWeather(){
+
+    closeMenu();
+
+    if(locationData){
+
+        loadWeather();
+
+    }else{
+
+        searchCity();
+
+    }
+
+}
+
+
+function goTop(){
+
+    window.scrollTo({
+
+        top:0,
+
+        behavior:"smooth"
+
+    });
+
+}
+
+
+
+/* =====================================
+   ΚΛΕΙΣΙΜΟ MENU ΟΤΑΝ ΠΑΤΑΜΕ ΕΞΩ
+===================================== */
+
+document.addEventListener(
+    "click",
+    function(event){
+
+        const menu =
+            document.getElementById("menu");
+
+        const button =
+            document.querySelector(".menu-button");
+
+
+        if(
+            menu.classList.contains("open") &&
+            !menu.contains(event.target) &&
+            !button.contains(event.target)
+        ){
+
+            menu.classList.remove("open");
+
+        }
+
+    }
+);
+
+
+
+/* =====================================
+   ΣΗΜΑΙΑ ΧΩΡΑΣ
 ===================================== */
 
 function countryFlag(countryCode){
 
     if(!countryCode){
+
         return "🌍";
+
     }
+
 
     const code =
         countryCode
         .toUpperCase()
         .trim();
 
+
     if(code.length !== 2){
+
         return "🌍";
+
     }
+
 
     return String
         .fromCodePoint(
@@ -617,7 +847,9 @@ function weatherIcon(
         if(code === 0){
 
             if(isDay){
+
                 return "☀️";
+
             }
 
             return '<span class="night-moon">🌙</span>';
@@ -628,7 +860,9 @@ function weatherIcon(
         if(code === 1){
 
             if(isDay){
+
                 return "🌤️";
+
             }
 
             return '<span class="night-moon">🌙</span>';
@@ -639,7 +873,9 @@ function weatherIcon(
         if(code === 2){
 
             if(isDay){
+
                 return "🌤️";
+
             }
 
             return `
@@ -653,14 +889,18 @@ function weatherIcon(
 
 
         if(code === 3){
+
             return "☁️";
+
         }
 
 
         if(
             [45,48].includes(code)
         ){
+
             return "🌫️";
+
         }
 
 
@@ -674,12 +914,16 @@ function weatherIcon(
                 95,96,99
             ].includes(code)
         ){
+
             return "☁️";
+
         }
 
 
         if(isDay){
+
             return "🌤️";
+
         }
 
         return '<span class="night-moon">🌙</span>';
@@ -690,7 +934,9 @@ function weatherIcon(
     if(
         [95,96,99].includes(code)
     ){
+
         return "⛈️";
+
     }
 
 
@@ -701,7 +947,9 @@ function weatherIcon(
             85,86
         ].includes(code)
     ){
+
         return "🌨️";
+
     }
 
 
@@ -712,7 +960,9 @@ function weatherIcon(
             80,81,82
         ].includes(code)
     ){
+
         return "🌧️";
+
     }
 
 
@@ -787,7 +1037,7 @@ function weatherText(code){
 
 
 /* =====================================
-   WIND
+   WIND DIRECTION
 ===================================== */
 
 function windDirection(degrees){
@@ -797,7 +1047,9 @@ function windDirection(degrees){
         degrees === undefined ||
         isNaN(degrees)
     ){
+
         return "—";
+
     }
 
 
@@ -878,32 +1130,11 @@ function formatDate(dateString){
 
 
 /* =====================================
-   ΜΕΣΟΣ ΟΡΟΣ 3 ΜΟΝΤΕΛΩΝ
-===================================== */
-
-function average3(a,b,c){
-
-    const values = [a,b,c]
-        .map(Number)
-        .filter(v => Number.isFinite(v));
-
-    if(!values.length){
-        return 0;
-    }
-
-    return values.reduce(
-        (sum,v) => sum + v,
-        0
-    ) / values.length;
-
-}
-
-
-/* =====================================
    SEARCH CITY
 ===================================== */
 
 async function searchCity(){
+
 
     const city =
         document
@@ -928,6 +1159,7 @@ async function searchCity(){
 
 
     try{
+
 
         const geoUrl =
 
@@ -994,6 +1226,7 @@ async function searchCity(){
 
     }catch(error){
 
+
         console.error(error);
 
 
@@ -1019,11 +1252,14 @@ async function searchCity(){
 
 async function loadWeather(){
 
+
     const lat =
         locationData.latitude;
 
+
     const lon =
         locationData.longitude;
+
 
 
     const common =
@@ -1039,44 +1275,73 @@ async function loadWeather(){
         "&forecast_days=15";
 
 
+
     const current =
 
         "temperature_2m," +
+
         "relative_humidity_2m," +
+
         "apparent_temperature," +
+
         "weather_code," +
+
         "wind_speed_10m," +
+
         "wind_direction_10m," +
+
         "is_day";
+
 
 
     const hourly =
 
         "temperature_2m," +
+
         "relative_humidity_2m," +
+
         "apparent_temperature," +
+
         "precipitation," +
+
         "precipitation_probability," +
+
         "snowfall," +
+
         "weather_code," +
+
         "cloud_cover," +
+
         "wind_speed_10m," +
+
         "wind_direction_10m," +
+
         "wind_gusts_10m," +
+
         "is_day";
+
 
 
     const daily =
 
         "temperature_2m_max," +
+
         "temperature_2m_min," +
+
         "weather_code," +
+
         "precipitation_sum," +
+
         "precipitation_probability_max," +
+
         "snowfall_sum," +
+
         "wind_speed_10m_max," +
+
         "sunrise," +
+
         "sunset";
+
 
 
     const ecmwfUrl =
@@ -1097,6 +1362,7 @@ async function loadWeather(){
         "&models=ecmwf_ifs025";
 
 
+
     const gfsUrl =
 
         "https://api.open-meteo.com/v1/forecast?" +
@@ -1113,6 +1379,7 @@ async function loadWeather(){
         daily +
 
         "&models=gfs_seamless";
+
 
 
     const iconUrl =
@@ -1133,6 +1400,7 @@ async function loadWeather(){
         "&models=icon_seamless";
 
 
+
     const [
 
         ecmwfRes,
@@ -1150,6 +1418,7 @@ async function loadWeather(){
     ]);
 
 
+
     const [
 
         ecmwf,
@@ -1165,6 +1434,7 @@ async function loadWeather(){
         iconRes.json()
 
     ]);
+
 
 
     weatherData = {
@@ -1194,6 +1464,7 @@ async function loadWeather(){
 ===================================== */
 
 function renderCurrent(){
+
 
     const d =
         weatherData.ecmwf;
@@ -1227,6 +1498,7 @@ function renderCurrent(){
 
     const isDay =
         d.current.is_day === 1;
+
 
 
     document
@@ -1339,19 +1611,13 @@ function renderCurrent(){
 
 /* =====================================
    DAILY FORECAST
-   ECMWF + GFS + ICON
 ===================================== */
 
 function renderForecast(){
 
-    const ecmwf =
+
+    const d =
         weatherData.ecmwf.daily;
-
-    const gfs =
-        weatherData.gfs.daily;
-
-    const icon =
-        weatherData.icon.daily;
 
 
     let html = "";
@@ -1359,79 +1625,32 @@ function renderForecast(){
 
     for(
         let i = 0;
-        i < ecmwf.time.length;
+        i < d.time.length;
         i++
     ){
 
+
         const date =
             formatDate(
-                ecmwf.time[i]
+                d.time[i]
             );
 
-
-        /* =============================
-           ΜΕΣΟΣ ΟΡΟΣ ΘΕΡΜΟΚΡΑΣΙΑΣ
-        ============================= */
-
-        const maxTemp =
-            average3(
-                ecmwf.temperature_2m_max[i],
-                gfs.temperature_2m_max[i],
-                icon.temperature_2m_max[i]
-            );
-
-
-        const minTemp =
-            average3(
-                ecmwf.temperature_2m_min[i],
-                gfs.temperature_2m_min[i],
-                icon.temperature_2m_min[i]
-            );
-
-
-        /* =============================
-           ΜΕΣΟΣ ΟΡΟΣ ΠΙΘΑΝΟΤΗΤΑΣ ΥΕΤΟΥ
-        ============================= */
 
         const rain =
-            average3(
-                ecmwf.precipitation_probability_max[i],
-                gfs.precipitation_probability_max[i],
-                icon.precipitation_probability_max[i]
+            Number(
+                d.precipitation_probability_max[i]
+                || 0
             );
 
-
-        /* =============================
-           ΜΕΣΟΣ ΟΡΟΣ ΧΙΟΝΟΠΤΩΣΗΣ
-        ============================= */
 
         const snow =
-            average3(
-                ecmwf.snowfall_sum[i],
-                gfs.snowfall_sum[i],
-                icon.snowfall_sum[i]
+            Number(
+                d.snowfall_sum[i]
+                || 0
             );
 
 
-        /* =============================
-           ΜΕΣΟΣ ΟΡΟΣ ΑΝΕΜΟΥ
-        ============================= */
-
-        const wind =
-            average3(
-                ecmwf.wind_speed_10m_max[i],
-                gfs.wind_speed_10m_max[i],
-                icon.wind_speed_10m_max[i]
-            );
-
-
-        /* =============================
-           ICON / CONDITION
-           ECMWF ως βάση για τον τύπο
-           καιρού
-        ============================= */
-
-        const precipitationInfo =
+        let precipitationInfo =
             `💧 ${Math.round(rain)}%`;
 
 
@@ -1459,7 +1678,7 @@ function renderForecast(){
             <div class="icon">
 
                 ${weatherIcon(
-                    ecmwf.weather_code[i],
+                    d.weather_code[i],
                     true,
                     rain,
                     snow
@@ -1470,14 +1689,18 @@ function renderForecast(){
 
             <div class="max">
 
-                ${Math.round(maxTemp)}°
+                ${Math.round(
+                    d.temperature_2m_max[i]
+                )}°
 
             </div>
 
 
             <div class="min">
 
-                ${Math.round(minTemp)}°
+                ${Math.round(
+                    d.temperature_2m_min[i]
+                )}°
 
             </div>
 
@@ -1510,6 +1733,7 @@ function renderForecast(){
 ===================================== */
 
 function showHourly(dayIndex){
+
 
     const d =
         weatherData.ecmwf.hourly;
@@ -1618,6 +1842,7 @@ function showHourly(dayIndex){
             d.is_day[i] === 1;
 
 
+
         const icon =
             weatherIcon(
                 d.weather_code[i],
@@ -1625,6 +1850,7 @@ function showHourly(dayIndex){
                 rain,
                 snowfall
             );
+
 
 
         let precipitationHTML = "";
@@ -1647,6 +1873,7 @@ function showHourly(dayIndex){
             `;
 
         }
+
 
 
         html += `
