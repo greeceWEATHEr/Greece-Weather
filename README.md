@@ -462,23 +462,88 @@ body{
     gap:9px;
 }
 
-.history-day{
+
+/* =====================================
+   ΙΣΤΟΡΙΚΟ ΕΤΩΝ
+===================================== */
+
+.history-years{
     display:grid;
     grid-template-columns:
-        85px
-        70px
-        1fr
-        1fr
-        1fr
-        1fr;
+        repeat(2,1fr);
+    gap:12px;
+}
+
+.history-year-button,
+.history-month-button,
+.history-back-button{
+    border:0;
+    color:#fff;
+    background:
+        rgba(65,96,130,.72);
+    border-radius:14px;
+    padding:17px 12px;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.18s;
+}
+
+.history-year-button:hover,
+.history-month-button:hover,
+.history-back-button:hover{
+    background:
+        rgba(72,105,143,.95);
+    transform:
+        translateY(-2px);
+}
+
+.history-months{
+    display:grid;
+    grid-template-columns:
+        repeat(3,1fr);
+    gap:10px;
+}
+
+.history-navigation{
+    display:flex;
+    gap:10px;
+    margin-bottom:15px;
+    flex-wrap:wrap;
+}
+
+.history-back-button{
+    padding:10px 14px;
+    font-size:14px;
+}
+
+
+/* =====================================
+   ΗΜΕΡΕΣ ΙΣΤΟΡΙΚΟΥ
+===================================== */
+
+.history-days{
+    display:grid;
+    grid-template-columns:
+        repeat(6,minmax(0,1fr));
+    gap:9px;
+}
+
+.history-day{
+    display:flex;
+    flex-direction:column;
     align-items:center;
+    justify-content:center;
+    min-width:0;
+    min-height:88px;
     background:
         rgba(65,96,130,.62);
     border-radius:13px;
-    padding:13px 10px;
-    gap:8px;
+    padding:10px 6px;
+    gap:5px;
     cursor:pointer;
     transition:.18s;
+    border:1px solid transparent;
 }
 
 .history-day:hover{
@@ -486,14 +551,18 @@ body{
         rgba(72,105,143,.90);
     border-color:
         rgba(255,255,255,.20);
+    transform:translateY(-2px);
 }
 
 .history-day:active{
-    transform:scale(.99);
+    transform:scale(.98);
 }
 
 .history-date{
     font-weight:bold;
+    font-size:14px;
+    text-align:center;
+    white-space:nowrap;
 }
 
 .history-icon{
@@ -506,9 +575,10 @@ body{
 }
 
 .history-data{
-    font-size:13px;
+    font-size:12px;
     color:#e4e8ed;
-    line-height:1.5;
+    line-height:1.4;
+    text-align:center;
 }
 
 
@@ -529,6 +599,10 @@ body{
 }
 
 .history-hourly-title{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
     font-size:17px;
     font-weight:bold;
     margin-bottom:13px;
@@ -536,6 +610,23 @@ body{
     border-bottom:
         1px solid
         rgba(255,255,255,.20);
+}
+
+.close-history-hourly{
+    flex-shrink:0;
+    background:
+        rgba(255,255,255,.15);
+    border:0;
+    color:#fff;
+    border-radius:9px;
+    padding:7px 11px;
+    cursor:pointer;
+    font-size:13px;
+}
+
+.close-history-hourly:hover{
+    background:
+        rgba(255,255,255,.25);
 }
 
 .history-hourly-loading{
@@ -638,17 +729,37 @@ body{
         display:none;
     }
 
-    .history-day{
+    .history-years{
         grid-template-columns:
-            80px
-            40px
-            1fr
             1fr;
     }
 
-    .history-data:nth-child(5),
-    .history-data:nth-child(6){
-        display:none;
+    .history-months{
+        grid-template-columns:
+            repeat(3,1fr);
+    }
+
+    .history-days{
+        grid-template-columns:
+            repeat(6,minmax(0,1fr));
+        gap:7px;
+    }
+
+    .history-day{
+        min-height:78px;
+        padding:8px 3px;
+    }
+
+    .history-date{
+        font-size:13px;
+    }
+
+    .history-icon{
+        font-size:22px;
+    }
+
+    .history-data{
+        font-size:11px;
     }
 
     .history-hour{
@@ -700,12 +811,38 @@ body{
         width:225px;
     }
 
-    .history-day{
+    .history-months{
         grid-template-columns:
-            75px
-            38px
-            1fr
-            1fr;
+            repeat(2,1fr);
+    }
+
+    .history-days{
+        grid-template-columns:
+            repeat(6,minmax(0,1fr));
+        gap:5px;
+    }
+
+    .history-day{
+        min-height:70px;
+        border-radius:10px;
+        padding:7px 2px;
+    }
+
+    .history-date{
+        font-size:12px;
+    }
+
+    .history-icon{
+        font-size:20px;
+        height:27px;
+    }
+
+    .history-data{
+        font-size:10px;
+    }
+
+    .history-hourly-title{
+        font-size:14px;
     }
 
 }
@@ -736,8 +873,6 @@ body{
         </p>
 
 
-        <!-- MENU BUTTON -->
-
         <button
             class="menu-button"
             onclick="toggleMenu()"
@@ -748,90 +883,58 @@ body{
         </button>
 
 
-        <!-- MENU -->
-
         <div
             id="menu"
             class="menu">
 
-            <button
-                class="menu-item"
-                onclick="loadHistory(1)">
-
+            <button class="menu-item"
+                    onclick="loadHistory(1)">
                 📜 Ιστορικό καιρού — τελευταίο 1 έτος
-
             </button>
 
-            <button
-                class="menu-item"
-                onclick="loadHistory(2)">
-
+            <button class="menu-item"
+                    onclick="loadHistory(2)">
                 📜 Ιστορικό καιρού — τελευταία 2 χρόνια
-
             </button>
 
-            <button
-                class="menu-item"
-                onclick="loadHistory(3)">
-
+            <button class="menu-item"
+                    onclick="loadHistory(3)">
                 📜 Ιστορικό καιρού — τελευταία 3 χρόνια
-
             </button>
 
-            <button
-                class="menu-item"
-                onclick="loadHistory(4)">
-
+            <button class="menu-item"
+                    onclick="loadHistory(4)">
                 📜 Ιστορικό καιρού — τελευταία 4 χρόνια
-
             </button>
 
-            <button
-                class="menu-item"
-                onclick="loadHistory(5)">
-
+            <button class="menu-item"
+                    onclick="loadHistory(5)">
                 📜 Ιστορικό καιρού — τελευταία 5 χρόνια
-
             </button>
 
-            <button
-                class="menu-item"
-                onclick="loadHistory(6)">
-
+            <button class="menu-item"
+                    onclick="loadHistory(6)">
                 📜 Ιστορικό καιρού — τελευταία 6 χρόνια
-
             </button>
 
-            <button
-                class="menu-item"
-                onclick="loadHistory(7)">
-
+            <button class="menu-item"
+                    onclick="loadHistory(7)">
                 📜 Ιστορικό καιρού — τελευταία 7 χρόνια
-
             </button>
 
-            <button
-                class="menu-item"
-                onclick="loadHistory(8)">
-
+            <button class="menu-item"
+                    onclick="loadHistory(8)">
                 📜 Ιστορικό καιρού — τελευταία 8 χρόνια
-
             </button>
 
-            <button
-                class="menu-item"
-                onclick="loadHistory(9)">
-
+            <button class="menu-item"
+                    onclick="loadHistory(9)">
                 📜 Ιστορικό καιρού — τελευταία 9 χρόνια
-
             </button>
 
-            <button
-                class="menu-item"
-                onclick="loadHistory(10)">
-
+            <button class="menu-item"
+                    onclick="loadHistory(10)">
                 📜 Ιστορικό καιρού — τελευταία 10 χρόνια
-
             </button>
 
         </div>
@@ -900,11 +1003,9 @@ body{
         id="hourlySection"
         class="hourly-section">
 
-
         <div class="hourly-header">
 
             <h3 id="hourlyTitle"></h3>
-
 
             <button
                 class="close-hourly"
@@ -916,12 +1017,10 @@ body{
 
         </div>
 
-
         <div
             id="hourly"
             class="hourly">
         </div>
-
 
     </div>
 
@@ -934,15 +1033,11 @@ body{
         id="historySection"
         class="history-section">
 
-
         <div class="history-header">
 
             <h3 id="historyTitle">
-
                 📜 Ιστορικό καιρού
-
             </h3>
-
 
             <button
                 class="close-history"
@@ -954,12 +1049,10 @@ body{
 
         </div>
 
-
         <div
             id="history"
             class="history">
         </div>
-
 
     </div>
 
@@ -1055,12 +1148,14 @@ function goTop(){
 
 
 /* =====================================
-   ΙΣΤΟΡΙΚΟ 1 - 10 ΧΡΟΝΙΑ
+   ΙΣΤΟΡΙΚΟ — 1 ΕΩΣ 10 ΧΡΟΝΙΑ
 ===================================== */
 
 async function loadHistory(years){
 
     closeMenu();
+
+    closeHourly();
 
     if(!locationData){
 
@@ -1079,21 +1174,21 @@ async function loadHistory(years){
         );
 
 
+    historySection.style.display =
+        "block";
+
+
     const history =
         document.getElementById(
             "history"
         );
 
 
-    historySection.style.display =
-        "block";
-
-
     history.innerHTML = `
 
         <div class="loading">
 
-            Φόρτωση ιστορικού καιρού...
+            Φόρτωση διαθέσιμων ετών...
 
         </div>
 
@@ -1109,61 +1204,366 @@ async function loadHistory(years){
     });
 
 
+    renderHistoryYears(years);
+
+}
+
+
+
+/* =====================================
+   ΕΤΗ
+===================================== */
+
+function renderHistoryYears(
+    years
+){
+
+    const history =
+        document.getElementById(
+            "history"
+        );
+
+
+    let html = `
+
+        <div class="history-navigation">
+
+            <button
+                class="history-back-button"
+                onclick="closeHistory()">
+
+                ✕ Κλείσιμο
+
+            </button>
+
+        </div>
+
+        <div class="history-years">
+
+    `;
+
+
+    const currentYear =
+        new Date().getFullYear();
+
+
+    for(
+        let i = 0;
+        i < years;
+        i++
+    ){
+
+        const year =
+            currentYear - i;
+
+
+        html += `
+
+            <button
+                class="history-year-button"
+                onclick="loadHistoryMonths(${year})">
+
+                📅 ${year}
+
+            </button>
+
+        `;
+
+    }
+
+
+    html += `
+
+        </div>
+
+    `;
+
+
+    history.innerHTML =
+        html;
+
+
+    document
+        .getElementById("historyTitle")
+        .innerText =
+
+        "📜 Ιστορικό καιρού — " +
+        locationData.name +
+        " — επίλεξε έτος";
+
+}
+
+
+
+/* =====================================
+   ΜΗΝΕΣ ΕΤΟΥΣ
+===================================== */
+
+function loadHistoryMonths(
+    year
+){
+
+    const history =
+        document.getElementById(
+            "history"
+        );
+
+
+    const months = [
+
+        "Ιανουάριος",
+        "Φεβρουάριος",
+        "Μάρτιος",
+        "Απρίλιος",
+        "Μάιος",
+        "Ιούνιος",
+        "Ιούλιος",
+        "Αύγουστος",
+        "Σεπτέμβριος",
+        "Οκτώβριος",
+        "Νοέμβριος",
+        "Δεκέμβριος"
+
+    ];
+
+
+    let html = `
+
+        <div class="history-navigation">
+
+            <button
+                class="history-back-button"
+                onclick="showHistoryYearsFromMenu()">
+
+                ← Έτη
+
+            </button>
+
+        </div>
+
+        <div class="history-months">
+
+    `;
+
+
+    for(
+        let month = 1;
+        month <= 12;
+        month++
+    ){
+
+        html += `
+
+            <button
+                class="history-month-button"
+                onclick="loadHistoryMonth(${year},${month})">
+
+                📅 ${months[month - 1]}
+
+            </button>
+
+        `;
+
+    }
+
+
+    html += `
+
+        </div>
+
+    `;
+
+
+    history.innerHTML =
+        html;
+
+
+    document
+        .getElementById("historyTitle")
+        .innerText =
+
+        "📜 Ιστορικό καιρού — " +
+        locationData.name +
+        " — " +
+        year;
+
+}
+
+
+
+function showHistoryYearsFromMenu(){
+
+    /*
+     * Το πόσα έτη θα εμφανίσουμε
+     * το βρίσκουμε από την τρέχουσα
+     * επιλογή του ιστορικού.
+     */
+
+    const currentYear =
+        new Date().getFullYear();
+
+
+    const history =
+        document.getElementById(
+            "history"
+        );
+
+
+    let html = `
+
+        <div class="history-navigation">
+
+            <button
+                class="history-back-button"
+                onclick="closeHistory()">
+
+                ✕ Κλείσιμο
+
+            </button>
+
+        </div>
+
+        <div class="history-years">
+
+    `;
+
+
+    /*
+     * Εμφανίζουμε μέχρι 10 χρόνια.
+     * Έτσι η επιστροφή λειτουργεί
+     * ανεξάρτητα από το ποια επιλογή
+     * άνοιξε αρχικά ο χρήστης.
+     */
+
+    for(
+        let i = 0;
+        i < 10;
+        i++
+    ){
+
+        const year =
+            currentYear - i;
+
+
+        html += `
+
+            <button
+                class="history-year-button"
+                onclick="loadHistoryMonths(${year})">
+
+                📅 ${year}
+
+            </button>
+
+        `;
+
+    }
+
+
+    html += `
+
+        </div>
+
+    `;
+
+
+    history.innerHTML =
+        html;
+
+
+    document
+        .getElementById("historyTitle")
+        .innerText =
+
+        "📜 Ιστορικό καιρού — " +
+        locationData.name +
+        " — επίλεξε έτος";
+
+}
+
+
+
+/* =====================================
+   ΦΟΡΤΩΣΗ ΜΗΝΑ
+===================================== */
+
+async function loadHistoryMonth(
+    year,
+    month
+){
+
+    if(!locationData){
+
+        return;
+
+    }
+
+
+    const history =
+        document.getElementById(
+            "history"
+        );
+
+
+    history.innerHTML = `
+
+        <div class="loading">
+
+            Φόρτωση ιστορικού
+            ${month}/${year}...
+
+        </div>
+
+    `;
+
+
+    const monthNames = [
+
+        "Ιανουάριος",
+        "Φεβρουάριος",
+        "Μάρτιος",
+        "Απρίλιος",
+        "Μάιος",
+        "Ιούνιος",
+        "Ιούλιος",
+        "Αύγουστος",
+        "Σεπτέμβριος",
+        "Οκτώβριος",
+        "Νοέμβριος",
+        "Δεκέμβριος"
+
+    ];
+
+
     try{
 
-
-        const endDate =
-            new Date();
-
-
-        endDate.setDate(
-            endDate.getDate() - 1
-        );
-
-
         const startDate =
-            new Date(
-                endDate
-            );
-
-
-        startDate.setFullYear(
-            startDate.getFullYear() - years
-        );
-
-
-        startDate.setDate(
-            startDate.getDate() + 1
-        );
-
-
-        const formatISODate =
-            function(date){
-
-                return date
-                    .toISOString()
-                    .substring(0,10);
-
-            };
-
-
-        const start =
-            formatISODate(
-                startDate
-            );
-
-
-        const end =
-            formatISODate(
-                endDate
-            );
+            year +
+            "-" +
+            String(month).padStart(2,"0") +
+            "-01";
 
 
         /*
-         * Το ERA5-Seamless χρησιμοποιείται
-         * για συνεπή ιστορικά δεδομένα
-         * σε μεγάλα χρονικά διαστήματα.
+         * Ημέρα 0 του επόμενου μήνα
+         * = τελευταία ημέρα του μήνα.
          */
+
+        const lastDay =
+            new Date(
+                year,
+                month,
+                0
+            ).getDate();
+
+
+        const endDate =
+            year +
+            "-" +
+            String(month).padStart(2,"0") +
+            "-" +
+            String(lastDay).padStart(2,"0");
+
 
         const url =
 
@@ -1176,10 +1576,10 @@ async function loadHistory(years){
             locationData.longitude +
 
             "&start_date=" +
-            start +
+            startDate +
 
             "&end_date=" +
-            end +
+            endDate +
 
             "&daily=" +
             "weather_code," +
@@ -1224,9 +1624,11 @@ async function loadHistory(years){
         }
 
 
-        renderHistory(
+        renderHistoryMonth(
             data,
-            years
+            year,
+            month,
+            monthNames[month - 1]
         );
 
 
@@ -1240,7 +1642,17 @@ async function loadHistory(years){
             <div class="loading">
 
                 Δεν ήταν δυνατή η φόρτωση
-                του ιστορικού καιρού.
+                του ιστορικού.
+
+                <br><br>
+
+                <button
+                    class="history-back-button"
+                    onclick="loadHistoryMonths(${year})">
+
+                    ← Επιστροφή στους μήνες
+
+                </button>
 
             </div>
 
@@ -1253,19 +1665,43 @@ async function loadHistory(years){
 
 
 /* =====================================
-   RENDER HISTORY
+   RENDER ΜΗΝΑ
 ===================================== */
 
-function renderHistory(
+function renderHistoryMonth(
     data,
-    years
+    year,
+    month,
+    monthName
 ){
 
     const d =
         data.daily;
 
 
-    let html = "";
+    const history =
+        document.getElementById(
+            "history"
+        );
+
+
+    let html = `
+
+        <div class="history-navigation">
+
+            <button
+                class="history-back-button"
+                onclick="loadHistoryMonths(${year})">
+
+                ← ${year}
+
+            </button>
+
+        </div>
+
+        <div class="history-days">
+
+    `;
 
 
     for(
@@ -1273,7 +1709,6 @@ function renderHistory(
         i < d.time.length;
         i++
     ){
-
 
         const date =
             formatDate(
@@ -1322,7 +1757,7 @@ function renderHistory(
             );
 
 
-        let icon =
+        const icon =
             weatherIcon(
                 code,
                 true,
@@ -1331,116 +1766,70 @@ function renderHistory(
             );
 
 
-        let precipitationText =
-
-            "💧 " +
-            precipitation.toFixed(1) +
-            " mm";
-
-
-        if(snowfall > 0){
-
-            precipitationText +=
-
-                " &nbsp;|&nbsp; ❄️ " +
-                snowfall.toFixed(1) +
-                " cm";
-
-        }
-
-
         html += `
 
-        <div
-            class="history-day"
-            onclick="showHistoryHourly('${d.time[i]}', this)"
-        >
+            <div
+                class="history-day"
+                onclick="showHistoryHourly('${d.time[i]}', this)"
+            >
+
+                <div class="history-date">
+
+                    ${date.date}
+
+                </div>
 
 
-            <div class="history-date">
+                <div class="history-icon">
 
-                ${date.day}
+                    ${icon}
 
-                <br>
-
-                ${date.date}
-
-            </div>
+                </div>
 
 
-            <div class="history-icon">
+                <div class="history-data">
 
-                ${icon}
+                    🌡️
+                    <b>${max}°</b>
+                    /
+                    ${min}°
 
-            </div>
-
-
-            <div class="history-data">
-
-                🌡️
-
-                <b>
-                    ${max}°
-                </b>
-
-                /
-
-                ${min}°
-
-            </div>
+                </div>
 
 
-            <div class="history-data">
+                <div class="history-data">
 
-                ${precipitationText}
+                    💧
+                    ${precipitation.toFixed(1)}
+                    mm
 
-            </div>
+                </div>
 
 
-            <div class="history-data">
+                <div class="history-data">
 
-                🌬️
-                ${wind} km/h
+                    🌬️
+                    ${wind}
+                    km/h
+
+                </div>
 
             </div>
-
-
-            <div class="history-data">
-
-                ${weatherText(code)}
-
-            </div>
-
-
-        </div>
 
         `;
 
     }
 
 
-    document
-        .getElementById("history")
-        .innerHTML =
+    html += `
+
+        </div>
+
+    `;
+
+
+    history.innerHTML =
         html;
-
-
-    let yearsText;
-
-
-    if(years === 1){
-
-        yearsText =
-            "τελευταίο 1 έτος";
-
-    }else{
-
-        yearsText =
-            "τελευταία " +
-            years +
-            " χρόνια";
-
-    }
 
 
     document
@@ -1453,7 +1842,11 @@ function renderHistory(
 
         " — " +
 
-        yearsText;
+        monthName +
+
+        " " +
+
+        year;
 
 }
 
@@ -1467,17 +1860,6 @@ async function showHistoryHourly(
     date,
     dayElement
 ){
-
-    const history =
-        document.getElementById(
-            "history"
-        );
-
-
-    /*
-     * Αν υπάρχει ήδη ανοιχτή
-     * ωριαία ανάλυση, την αφαιρούμε.
-     */
 
     const existing =
         document.querySelector(
@@ -1506,7 +1888,18 @@ async function showHistoryHourly(
 
         <div class="history-hourly-title">
 
-            ⏱️ Ωριαία ανάλυση — ${formatHistoryDateOnly(date)}
+            <span>
+                ⏱️ Ωριαία ανάλυση —
+                ${formatHistoryDateOnly(date)}
+            </span>
+
+            <button
+                class="close-history-hourly"
+                onclick="closeHistoryHourly(this)">
+
+                ✕ Κλείσιμο
+
+            </button>
 
         </div>
 
@@ -1518,11 +1911,6 @@ async function showHistoryHourly(
 
     `;
 
-
-    /*
-     * Η ανάλυση φορτώνεται ακριβώς
-     * για τη συγκεκριμένη ημέρα.
-     */
 
     dayElement.insertAdjacentElement(
         "afterend",
@@ -1540,7 +1928,6 @@ async function showHistoryHourly(
 
 
     try{
-
 
         const url =
 
@@ -1623,7 +2010,18 @@ async function showHistoryHourly(
 
             <div class="history-hourly-title">
 
-                ⏱️ Ωριαία ανάλυση — ${formatHistoryDateOnly(date)}
+                <span>
+                    ⏱️ Ωριαία ανάλυση —
+                    ${formatHistoryDateOnly(date)}
+                </span>
+
+                <button
+                    class="close-history-hourly"
+                    onclick="closeHistoryHourly(this)">
+
+                    ✕ Κλείσιμο
+
+                </button>
 
             </div>
 
@@ -1635,6 +2033,28 @@ async function showHistoryHourly(
             </div>
 
         `;
+
+    }
+
+}
+
+
+
+/* =====================================
+   ΚΛΕΙΣΙΜΟ ΙΣΤΟΡΙΚΗΣ ΩΡΙΑΙΑΣ
+===================================== */
+
+function closeHistoryHourly(button){
+
+    const box =
+        button.closest(
+            ".history-hourly"
+        );
+
+
+    if(box){
+
+        box.remove();
 
     }
 
@@ -1660,7 +2080,18 @@ function renderHistoryHourly(
 
         <div class="history-hourly-title">
 
-            ⏱️ Ωριαία ανάλυση — ${formatHistoryDateOnly(date)}
+            <span>
+                ⏱️ Ωριαία ανάλυση —
+                ${formatHistoryDateOnly(date)}
+            </span>
+
+            <button
+                class="close-history-hourly"
+                onclick="closeHistoryHourly(this)">
+
+                ✕ Κλείσιμο
+
+            </button>
 
         </div>
 
@@ -1672,7 +2103,6 @@ function renderHistoryHourly(
         i < d.time.length;
         i++
     ){
-
 
         const hour =
             d.time[i]
@@ -1783,7 +2213,6 @@ function renderHistoryHourly(
 
         <div class="history-hour">
 
-
             <div class="history-hour-time">
 
                 ${hour}
@@ -1847,7 +2276,6 @@ function renderHistoryHourly(
 
             </div>
 
-
         </div>
 
         `;
@@ -1878,6 +2306,19 @@ function closeHistory(){
 
         section.style.display =
             "none";
+
+    }
+
+
+    const hourly =
+        document.querySelector(
+            ".history-hourly"
+        );
+
+
+    if(hourly){
+
+        hourly.remove();
 
     }
 
@@ -2252,9 +2693,9 @@ function formatDate(
 
     let formattedDate =
 
-        d.getDate() +
+        String(d.getDate()) +
         "/" +
-        (d.getMonth() + 1);
+        String(d.getMonth() + 1);
 
 
     if(includeYear){
@@ -2262,7 +2703,7 @@ function formatDate(
         formattedDate +=
 
             "/" +
-            d.getFullYear();
+            String(d.getFullYear());
 
     }
 
@@ -2280,6 +2721,7 @@ function formatDate(
 }
 
 
+
 /* =====================================
    ΙΣΤΟΡΙΚΗ ΗΜΕΡΟΜΗΝΙΑ
 ===================================== */
@@ -2295,13 +2737,19 @@ function formatHistoryDateOnly(
         );
 
 
+    /*
+     * Χρησιμοποιούμε String()
+     * ώστε η πλήρης ημερομηνία να
+     * παραμένει πάντα ολόκληρη.
+     */
+
     return (
 
-        d.getDate() +
+        String(d.getDate()) +
         "/" +
-        (d.getMonth() + 1) +
+        String(d.getMonth() + 1) +
         "/" +
-        d.getFullYear()
+        String(d.getFullYear())
 
     );
 
