@@ -602,8 +602,8 @@ body{
 
 
 /* =====================================
-   ΩΡΙΑΙΑ ΠΡΟΓΝΩΣΗ ΙΣΤΟΡΙΚΟΥ
-   ΙΔΙΟ ΣΤΥΛ ΜΕ ΤΗΝ ΚΑΝΟΝΙΚΗ
+   ΙΣΤΟΡΙΚΗ ΩΡΙΑΙΑ
+   ΙΔΙΟ ΣΧΗΜΑ ΜΕ ΤΗΝ ΚΑΝΟΝΙΚΗ
 ===================================== */
 
 .history-hourly{
@@ -775,9 +775,6 @@ body{
         font-size:10px;
     }
 
-
-    /* ΙΔΙΟ RESPONSIVE ΣΧΗΜΑ ΜΕ ΤΗΝ ΚΑΝΟΝΙΚΗ ΩΡΙΑΙΑ */
-
     .history-hourly{
         padding:20px;
     }
@@ -872,10 +869,6 @@ body{
 
     .history-hourly-header h3{
         font-size:17px;
-    }
-
-    .history-hourly{
-        grid-column:1 / -1;
     }
 
     .history-hour{
@@ -1164,6 +1157,11 @@ body{
 
         <br>
 
+        Ιστορικό: ECMWF ERA5 Reanalysis
+        μέσω Open-Meteo — διαθέσιμο από το 1940.
+
+        <br>
+
         Τα δεδομένα ανανεώνονται αυτόματα
         σύμφωνα με τους κύκλους έκδοσης
         των μοντέλων.
@@ -1255,6 +1253,8 @@ async function loadHistory(years){
     closeMenu();
 
     closeHourly();
+
+    closeHistoryHourly();
 
     if(!locationData){
 
@@ -1501,7 +1501,8 @@ function showHistoryYearsFromMenu(){
 
 
 /* =====================================
-   ΦΟΡΤΩΣΗ ΜΗΝΑ
+   ΦΟΡΤΩΣΗ ΜΗΝΑ ΙΣΤΟΡΙΚΟΥ
+   ECMWF ERA5 — ΣΤΑΘΕΡΟ DATASET
 ===================================== */
 
 async function loadHistoryMonth(
@@ -1555,10 +1556,7 @@ async function loadHistoryMonth(
     try{
 
         const startDate =
-            year +
-            "-" +
-            String(month).padStart(2,"0") +
-            "-01";
+            `${year}-${String(month).padStart(2,"0")}-01`;
 
 
         const lastDay =
@@ -1570,22 +1568,30 @@ async function loadHistoryMonth(
 
 
         const endDate =
-            year +
-            "-" +
-            String(month).padStart(2,"0") +
-            "-" +
-            String(lastDay).padStart(2,"0");
+            `${year}-${String(month).padStart(2,"0")}-${String(lastDay).padStart(2,"0")}`;
 
+
+        /*
+         * ΣΗΜΑΝΤΙΚΟ:
+         *
+         * Χρησιμοποιούμε ERA5 και όχι
+         * ERA5-Seamless ώστε όλα τα χρόνια
+         * του ιστορικού να βασίζονται στο
+         * ίδιο συνεπές ιστορικό dataset.
+         *
+         * Το ERA5 του ECMWF διαθέτει
+         * ιστορικά δεδομένα από το 1940.
+         */
 
         const url =
 
             "https://archive-api.open-meteo.com/v1/archive" +
 
             "?latitude=" +
-            locationData.latitude +
+            encodeURIComponent(locationData.latitude) +
 
             "&longitude=" +
-            locationData.longitude +
+            encodeURIComponent(locationData.longitude) +
 
             "&start_date=" +
             startDate +
@@ -1601,7 +1607,7 @@ async function loadHistoryMonth(
             "precipitation_hours," +
             "snowfall_sum" +
 
-            "&models=era5_seamless" +
+            "&models=era5" +
 
             "&timezone=auto";
 
@@ -1722,42 +1728,75 @@ function renderHistoryMonth(
         i++
     ){
 
+        /*
+         * Η ημερομηνία χρησιμοποιείται
+         * αυτούσια από το API.
+         *
+         * Δεν γίνεται new Date() για να
+         * αποφύγουμε οποιαδήποτε μετατόπιση
+         * ημέρας λόγω timezone.
+         */
+
+        const rawDate =
+            d.time[i];
+
+
+        const dateParts =
+            rawDate.split("-");
+
+
+        const dayNumber =
+            Number(dateParts[2]);
+
+
+        const monthNumber =
+            Number(dateParts[1]);
+
+
+        const yearNumber =
+            Number(dateParts[0]);
+
+
         const date =
-            formatDate(
-                d.time[i],
-                true
-            );
+            `${dayNumber}/${monthNumber}/${yearNumber}`;
 
 
         const code =
             Number(
-                d.weather_code[i]
-                || 0
+                d.weather_code[i] ?? 0
             );
 
 
         const max =
             Math.round(
-                d.temperature_2m_max[i]
+                Number(
+                    d.temperature_2m_max[i]
+                )
             );
 
 
         const min =
             Math.round(
-                d.temperature_2m_min[i]
+                Number(
+                    d.temperature_2m_min[i]
+                )
             );
 
 
         /*
          * Ιστορικός υετός:
+         *
+         * Το historical API δεν παρέχει
+         * forecast probability.
+         *
+         * Επομένως το ποσοστό είναι το
          * ποσοστό των ωρών της ημέρας
-         * κατά τις οποίες υπήρχε υετός.
+         * με καταγεγραμμένο υετό.
          */
 
         const precipitationHours =
             Number(
-                d.precipitation_hours[i]
-                || 0
+                d.precipitation_hours[i] ?? 0
             );
 
 
@@ -1773,20 +1812,30 @@ function renderHistoryMonth(
             );
 
 
+        /*
+         * ΧΙΟΝΙ:
+         *
+         * Εδώ δεν χρησιμοποιούμε πλέον
+         * weather_code ως μοναδικό κριτήριο.
+         *
+         * Αν snowfall_sum = 0,
+         * ΔΕΝ γράφουμε χιόνι.
+         */
+
         const snowfall =
             Number(
-                d.snowfall_sum[i]
-                || 0
+                d.snowfall_sum[i] ?? 0
             );
 
 
         const hasSnow =
-            snowfall > 0 ||
-            [
-                71,73,75,77,
-                85,86
-            ].includes(code);
+            snowfall > 0;
 
+
+        /*
+         * Για το ιστορικό χρησιμοποιούμε
+         * το πραγματικό snowfall_sum.
+         */
 
         const icon =
             weatherIcon(
@@ -1807,31 +1856,21 @@ function renderHistoryMonth(
 
             <div
                 class="history-day"
-                onclick="showHistoryHourly('${d.time[i]}', this)"
-                title="${date.date}"
+                onclick="showHistoryHourly('${rawDate}', this)"
+                title="${date}"
             >
 
                 <div class="history-date">
 
                     <span class="history-day-number">
 
-                        ${String(
-                            new Date(
-                                d.time[i] +
-                                "T12:00:00"
-                            ).getDate()
-                        )}
+                        ${dayNumber}
 
                     </span>
 
                     <span class="history-month-year">
 
-                        ${String(
-                            new Date(
-                                d.time[i] +
-                                "T12:00:00"
-                            ).getMonth() + 1
-                        )}/${year}
+                        ${String(monthNumber).padStart(2,"0")}/${yearNumber}
 
                     </span>
 
@@ -1907,8 +1946,8 @@ function renderHistoryMonth(
 
 
 /* =====================================
-   ΙΣΤΟΡΙΚΗ ΩΡΙΑΙΑ ΠΡΟΓΝΩΣΗ
-   ΙΔΙΟ ΣΤΥΛ ΜΕ ΤΗΝ ΚΑΝΟΝΙΚΗ
+   ΙΣΤΟΡΙΚΗ ΩΡΙΑΙΑ
+   ECMWF ERA5
 ===================================== */
 
 async function showHistoryHourly(
@@ -1947,7 +1986,7 @@ async function showHistoryHourly(
 
             <h3>
 
-                Ωριαία πρόγνωση — ${formatDate(date).date}
+                Ωριαία πρόγνωση — ${date}
 
             </h3>
 
@@ -1965,7 +2004,8 @@ async function showHistoryHourly(
 
             <div class="loading">
 
-                Φόρτωση ωριαίας πρόγνωσης...
+                Φόρτωση ιστορικής ωριαίας
+                ανάλυσης...
 
             </div>
 
@@ -1974,9 +2014,13 @@ async function showHistoryHourly(
     `;
 
 
-    historyDays.insertBefore(
-        historyHourly,
-        dayElement.nextSibling
+    /*
+     * Μπαίνει ως ξεχωριστό στοιχείο
+     * που πιάνει και τις 6 στήλες.
+     */
+
+    historyDays.appendChild(
+        historyHourly
     );
 
 
@@ -1987,10 +2031,10 @@ async function showHistoryHourly(
             "https://archive-api.open-meteo.com/v1/archive" +
 
             "?latitude=" +
-            locationData.latitude +
+            encodeURIComponent(locationData.latitude) +
 
             "&longitude=" +
-            locationData.longitude +
+            encodeURIComponent(locationData.longitude) +
 
             "&start_date=" +
             date +
@@ -2010,6 +2054,8 @@ async function showHistoryHourly(
             "wind_direction_10m," +
             "wind_gusts_10m," +
             "is_day" +
+
+            "&models=era5" +
 
             "&timezone=auto";
 
@@ -2050,6 +2096,15 @@ async function showHistoryHourly(
         );
 
 
+        historyHourly.scrollIntoView({
+
+            behavior:"smooth",
+
+            block:"start"
+
+        });
+
+
     }catch(error){
 
         console.error(error);
@@ -2066,7 +2121,8 @@ async function showHistoryHourly(
             <div class="loading">
 
                 Δεν ήταν δυνατή η φόρτωση
-                της ωριαίας πρόγνωσης.
+                της ιστορικής ωριαίας
+                ανάλυσης.
 
             </div>
 
@@ -2114,56 +2170,45 @@ function renderHistoryHourly(
 
         const temp =
             Math.round(
-                d.temperature_2m[i]
+                Number(
+                    d.temperature_2m[i]
+                )
             );
 
 
         const feels =
             Math.round(
-                d.apparent_temperature[i]
+                Number(
+                    d.apparent_temperature[i]
+                )
             );
 
 
         const precipitation =
             Number(
-                d.precipitation[i]
-                || 0
+                d.precipitation[i] ?? 0
             );
 
 
         const snowfall =
             Number(
-                d.snowfall[i]
-                || 0
+                d.snowfall[i] ?? 0
             );
-
-
-        /*
-         * Το ιστορικό API δεν δίνει
-         * forecast probability.
-         *
-         * Για να διατηρείται το ίδιο οπτικό
-         * σχήμα με την κανονική ωριαία,
-         * χρησιμοποιούμε 100% όταν υπάρχει
-         * μετρήσιμος υετός εκείνη την ώρα,
-         * διαφορετικά 0%.
-         */
-
-        const precipitationPercent =
-            precipitation > 0 || snowfall > 0
-                ? 100
-                : 0;
 
 
         const clouds =
             Math.round(
-                d.cloud_cover[i] || 0
+                Number(
+                    d.cloud_cover[i] ?? 0
+                )
             );
 
 
         const wind =
             Math.round(
-                d.wind_speed_10m[i] || 0
+                Number(
+                    d.wind_speed_10m[i] ?? 0
+                )
             );
 
 
@@ -2175,41 +2220,58 @@ function renderHistoryHourly(
 
         const windGust =
             Math.round(
-                d.wind_gusts_10m[i] || 0
+                Number(
+                    d.wind_gusts_10m[i] ?? 0
+                )
             );
 
 
         const isDay =
-            d.is_day[i] === 1;
+            Number(
+                d.is_day[i]
+            ) === 1;
 
 
         const code =
             Number(
-                d.weather_code[i] || 0
+                d.weather_code[i] ?? 0
             );
+
+
+        const hasSnow =
+            snowfall > 0;
+
+
+        const hasPrecipitation =
+            precipitation > 0 ||
+            snowfall > 0;
 
 
         const icon =
             weatherIcon(
                 code,
                 isDay,
-                precipitationPercent,
+                hasPrecipitation ? 100 : 0,
                 snowfall
             );
 
 
+        /*
+         * Στην ιστορική ωριαία δεν υπάρχει
+         * forecast probability.
+         *
+         * Εμφανίζουμε την πραγματική ποσότητα
+         * που καταγράφηκε εκείνη την ώρα.
+         */
+
         let precipitationHTML = "";
 
 
-        if(snowfall > 0){
+        if(hasSnow){
 
             precipitationHTML = `
 
-                ❄️ ${precipitationPercent}%
-
-                <br>
-
-                ${snowfall.toFixed(1)} cm
+                ❄️ ${snowfall.toFixed(1)} cm
 
             `;
 
@@ -2217,11 +2279,7 @@ function renderHistoryHourly(
 
             precipitationHTML = `
 
-                💧 ${precipitationPercent}%
-
-                <br>
-
-                ${precipitation.toFixed(1)} mm
+                💧 ${precipitation.toFixed(1)} mm
 
             `;
 
@@ -2313,6 +2371,25 @@ function renderHistoryHourly(
 
 
 /* =====================================
+   CLOSE HISTORY HOURLY
+===================================== */
+
+function closeHistoryHourly(){
+
+    document
+        .querySelectorAll(
+            ".history-hourly"
+        )
+        .forEach(
+            element =>
+                element.remove()
+        );
+
+}
+
+
+
+/* =====================================
    CLOSE HISTORY
 ===================================== */
 
@@ -2322,6 +2399,9 @@ function closeHistory(){
         document.getElementById(
             "historySection"
         );
+
+
+    closeHistoryHourly();
 
 
     if(section){
