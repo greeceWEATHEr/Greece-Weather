@@ -360,7 +360,7 @@ body{
 
 
 /* =====================================
-   ΧΑΡΤΕΣ
+   ΧΑΡΤΗΣ RADAR ΥΕΤΟΥ
 ===================================== */
 
 .map-section{
@@ -381,8 +381,7 @@ body{
     margin-bottom:15px;
 }
 
-#precipitationMap,
-#temperatureMap{
+#precipitationMap{
     width:100%;
     height:380px;
     border-radius:15px;
@@ -390,69 +389,11 @@ body{
     background:#dce8f2;
 }
 
-.temperature-section{
-    margin-top:25px;
-}
-
-.precipitation-info,
-.temperature-info{
+.precipitation-info{
     margin-top:10px;
     font-size:12px;
     color:#cbd8e5;
     line-height:1.5;
-}
-
-
-/* =====================================
-   ΘΕΡΜΟΚΡΑΣΙΑ MAP LEGEND
-===================================== */
-
-.temperature-legend{
-    background:
-        rgba(5,27,50,.88);
-    border-radius:10px;
-    padding:9px 11px;
-    color:#fff;
-    font-size:11px;
-    line-height:1.5;
-    box-shadow:
-        0 2px 10px
-        rgba(0,0,0,.25);
-}
-
-.temperature-gradient{
-    width:150px;
-    height:12px;
-    border-radius:6px;
-    margin-top:5px;
-    background:
-        linear-gradient(
-            90deg,
-            #173b9c,
-            #198bd1,
-            #20b98e,
-            #d6d51d,
-            #ff941f,
-            #ed3024
-        );
-}
-
-.temperature-labels{
-    width:150px;
-    display:flex;
-    justify-content:space-between;
-    font-size:10px;
-    margin-top:2px;
-}
-
-
-/* =====================================
-   TEMPERATURE CELLS
-===================================== */
-
-.temperature-cell{
-    border:0;
-    pointer-events:none;
 }
 
 
@@ -462,8 +403,7 @@ body{
 
 @media(max-width:750px){
 
-    #precipitationMap,
-    #temperatureMap{
+    #precipitationMap{
         height:330px;
     }
 
@@ -670,15 +610,11 @@ body{
 
 
     <!-- =================================
-         ΧΑΡΤΕΣ
+         RADAR ΥΕΤΟΥ
     ================================= -->
 
     <div class="map-section">
 
-
-        <!-- =================================
-             RADAR ΥΕΤΟΥ
-        ================================= -->
 
         <div class="map-title">
 
@@ -686,38 +622,16 @@ body{
 
         </div>
 
+
         <div id="precipitationMap"></div>
+
 
         <div class="precipitation-info">
 
             🌧️ Πρόσφατο radar υετού.
             <br>
-            Το radar δείχνει τον ανιχνευμένο υετό
-            και παραμένει ορατό κατά το zoom.
-
-        </div>
-
-
-        <!-- =================================
-             ΧΑΡΤΗΣ ΘΕΡΜΟΚΡΑΣΙΑΣ
-        ================================= -->
-
-        <div class="temperature-section">
-
-            <div class="map-title">
-
-                🌡️ Live χάρτης θερμοκρασίας
-
-            </div>
-
-            <div id="temperatureMap"></div>
-
-            <div class="temperature-info">
-
-                🌡️ Τρέχουσες θερμοκρασίες από
-                μετεωρολογικά δεδομένα Open-Meteo.
-
-            </div>
+            Τα χρώματα δείχνουν τα πραγματικά
+            ανιχνευμένα φαινόμενα βροχής και χιονιού.
 
         </div>
 
@@ -761,15 +675,15 @@ body{
 ===================================== */
 
 let precipitationMap =
-    L.map("precipitationMap",{
 
-        zoomControl:true,
-
-        minZoom:2,
-
-        maxZoom:18
-
-    }).setView(
+    L.map(
+        "precipitationMap",
+        {
+            zoomControl:true,
+            minZoom:2,
+            maxZoom:18
+        }
+    ).setView(
 
         [40.6401,22.9444],
 
@@ -778,9 +692,9 @@ let precipitationMap =
     );
 
 
-/*
-   Καθαρός βασικός χάρτης.
-*/
+/* =====================================
+   ΒΑΣΙΚΟΣ ΧΑΡΤΗΣ
+===================================== */
 
 L.tileLayer(
 
@@ -803,6 +717,10 @@ L.tileLayer(
 
 
 
+/* =====================================
+   MARKER
+===================================== */
+
 let precipitationMarker =
 
     L.marker(
@@ -824,12 +742,12 @@ let precipitationMarker =
     );
 
 
-
 let precipitationRadar = null;
 
 
+
 /* =====================================
-   ΦΟΡΤΩΣΗ RADAR
+   ΦΟΡΤΩΣΗ ΠΡΟΣΦΑΤΟΥ RADAR
 ===================================== */
 
 async function loadPrecipitationRadar(){
@@ -840,7 +758,8 @@ async function loadPrecipitationRadar(){
 
             await fetch(
 
-                "https://api.rainviewer.com/public/weather-maps.json"
+                "https://api.rainviewer.com/public/weather-maps.json?" +
+                Date.now()
 
             );
 
@@ -848,9 +767,7 @@ async function loadPrecipitationRadar(){
         if(!response.ok){
 
             throw new Error(
-
                 "RainViewer API error"
-
             );
 
         }
@@ -864,35 +781,42 @@ async function loadPrecipitationRadar(){
         if(
 
             !data.radar ||
-
             !data.radar.past ||
-
             !data.radar.past.length
 
         ){
+
+            console.log(
+                "Δεν υπάρχει διαθέσιμο radar."
+            );
 
             return;
 
         }
 
 
+        /*
+           Παίρνουμε το πιο πρόσφατο
+           διαθέσιμο radar frame.
+        */
+
         const latest =
 
             data.radar.past[
-
                 data.radar.past.length - 1
-
             ];
 
 
         /*
-           0_1 = χωρίς smoothing,
+           Πραγματικό RainViewer radar.
+
+           0_1:
+           χωρίς smoothing,
            με εμφάνιση χιονιού.
 
-           maxNativeZoom = 7:
-           πάνω από αυτό το επίπεδο
-           το radar συνεχίζει να φαίνεται,
-           χωρίς να εξαφανίζεται.
+           Το 2 είναι το διαθέσιμο
+           Universal Blue χρωματικό
+           scheme του public API.
         */
 
         const radarUrl =
@@ -903,6 +827,11 @@ async function loadPrecipitationRadar(){
 
             "/512/{z}/{x}/{y}/2/0_1.png";
 
+
+        /*
+           Αφαιρούμε το προηγούμενο
+           frame πριν μπει το καινούργιο.
+        */
 
         if(precipitationRadar){
 
@@ -923,7 +852,7 @@ async function loadPrecipitationRadar(){
 
                 {
 
-                    opacity:.88,
+                    opacity:.92,
 
                     minZoom:2,
 
@@ -963,6 +892,7 @@ async function loadPrecipitationRadar(){
 }
 
 
+
 /* =====================================
    ΕΝΗΜΕΡΩΣΗ RADAR
 ===================================== */
@@ -982,7 +912,6 @@ function updatePrecipitationMap(
         [
 
             latitude,
-
             longitude
 
         ],
@@ -997,7 +926,6 @@ function updatePrecipitationMap(
         [
 
             latitude,
-
             longitude
 
         ]
@@ -1022,724 +950,14 @@ function updatePrecipitationMap(
 loadPrecipitationRadar();
 
 
-setInterval(
-
-    loadPrecipitationRadar,
-
-    10 * 60 * 1000
-
-);
-
-
-
-/* =====================================
-   TEMPERATURE MAP
-===================================== */
-
-let temperatureMap =
-
-    L.map(
-
-        "temperatureMap",
-
-        {
-
-            zoomControl:true,
-
-            minZoom:2,
-
-            maxZoom:12
-
-        }
-
-    ).setView(
-
-        [40.6401,22.9444],
-
-        6
-
-    );
-
-
-
-L.tileLayer(
-
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-
-    {
-
-        attribution:
-            "&copy; OpenStreetMap contributors",
-
-        maxZoom:19
-
-    }
-
-).addTo(
-
-    temperatureMap
-
-);
-
-
-
-let temperatureLayerGroup =
-
-    L.layerGroup().addTo(
-
-        temperatureMap
-
-    );
-
-
-
-let temperatureLoading = false;
-
-
-
-/* =====================================
-   TEMPERATURE COLOR
-===================================== */
-
-function temperatureColor(temp){
-
-    if(temp <= -10)
-        return "#173b9c";
-
-    if(temp <= 0)
-        return "#2467c7";
-
-    if(temp <= 5)
-        return "#198bd1";
-
-    if(temp <= 10)
-        return "#20b98e";
-
-    if(temp <= 15)
-        return "#76c51f";
-
-    if(temp <= 20)
-        return "#d6d51d";
-
-    if(temp <= 25)
-        return "#ffb21c";
-
-    if(temp <= 30)
-        return "#ff6b1d";
-
-    if(temp <= 35)
-        return "#ed3024";
-
-    return "#b51d2a";
-
-}
-
-
-/* =====================================
-   TEMPERATURE LEGEND
-===================================== */
-
-const temperatureLegend =
-
-    L.control({
-
-        position:"bottomright"
-
-    });
-
-
-
-temperatureLegend.onAdd =
-
-    function(){
-
-        const div =
-
-            L.DomUtil.create(
-
-                "div",
-
-                "temperature-legend"
-
-            );
-
-
-        div.innerHTML = `
-
-            <b>Θερμοκρασία °C</b>
-
-            <div class="temperature-gradient"></div>
-
-            <div class="temperature-labels">
-
-                <span>−10°</span>
-
-                <span>0°</span>
-                <span>10°</span>
-                <span>20°</span>
-                <span>30°</span>
-                <span>40°+</span>
-
-            </div>
-
-        `;
-
-
-        return div;
-
-    };
-
-
-temperatureLegend.addTo(
-
-    temperatureMap
-
-);
-
-
-
-/* =====================================
-   GRID TEMPERATURES
-===================================== */
-
-async function loadTemperatureMap(){
-
-    if(temperatureLoading){
-
-        return;
-
-    }
-
-
-    temperatureLoading = true;
-
-
-    try{
-
-        const center =
-
-            temperatureMap.getCenter();
-
-
-        const bounds =
-
-            temperatureMap.getBounds();
-
-
-        let south =
-
-            bounds.getSouth();
-
-
-        let north =
-
-            bounds.getNorth();
-
-
-        let west =
-
-            bounds.getWest();
-
-
-        let east =
-
-            bounds.getEast();
-
-
-        /*
-           Περιορίζουμε το πλάτος
-           του request για να μην
-           δημιουργούνται υπερβολικά
-           πολλά requests.
-        */
-
-        south =
-            Math.max(-60,south);
-
-        north =
-            Math.min(75,north);
-
-
-        /*
-           Πλέγμα ανάλογα με το zoom.
-        */
-
-        const zoom =
-
-            temperatureMap.getZoom();
-
-
-        let step;
-
-
-        if(zoom <= 4){
-
-            step = 3;
-
-        }else if(zoom <= 6){
-
-            step = 1.5;
-
-        }else if(zoom <= 8){
-
-            step = .75;
-
-        }else{
-
-            step = .4;
-
-        }
-
-
-        /*
-           Όριο για προστασία
-           από πάρα πολλά σημεία.
-        */
-
-        const maxPoints = 400;
-
-
-        let latitudes = [];
-
-        let longitudes = [];
-
-
-        for(
-
-            let lat = south;
-
-            lat <= north;
-
-            lat += step
-
-        ){
-
-            latitudes.push(
-
-                Number(lat.toFixed(3))
-
-            );
-
-        }
-
-
-        for(
-
-            let lon = west;
-
-            lon <= east;
-
-            lon += step
-
-        ){
-
-            longitudes.push(
-
-                Number(lon.toFixed(3))
-
-            );
-
-        }
-
-
-        let points = [];
-
-
-        for(
-
-            let i=0;
-
-            i<latitudes.length;
-
-            i++
-
-        ){
-
-            for(
-
-                let j=0;
-
-                j<longitudes.length;
-
-                j++
-
-            ){
-
-                points.push({
-
-                    lat:
-                        latitudes[i],
-
-                    lon:
-                        longitudes[j]
-
-                });
-
-            }
-
-        }
-
-
-        /*
-           Αν το viewport έχει πολλά σημεία,
-           μειώνουμε το πλέγμα.
-        */
-
-        if(points.length > maxPoints){
-
-            const factor =
-
-                Math.ceil(
-
-                    Math.sqrt(
-
-                        points.length /
-
-                        maxPoints
-
-                    )
-
-                );
-
-
-            latitudes =
-
-                latitudes.filter(
-
-                    (_,i) =>
-
-                    i % factor === 0
-
-                );
-
-
-            longitudes =
-
-                longitudes.filter(
-
-                    (_,i) =>
-
-                    i % factor === 0
-
-                );
-
-
-            points = [];
-
-
-            for(
-
-                let i=0;
-
-                i<latitudes.length;
-
-                i++
-
-            ){
-
-                for(
-
-                    let j=0;
-
-                    j<longitudes.length;
-
-                    j++
-
-                ){
-
-                    points.push({
-
-                        lat:
-                            latitudes[i],
-
-                        lon:
-                            longitudes[j]
-
-                    });
-
-                }
-
-            }
-
-        }
-
-
-        if(!points.length){
-
-            return;
-
-        }
-
-
-        /*
-           Ένα Open-Meteo request
-           μπορεί να δώσει πολλές
-           συντεταγμένες μαζί.
-        */
-
-        const latString =
-
-            points
-
-            .map(p => p.lat)
-
-            .join(",");
-
-
-        const lonString =
-
-            points
-
-            .map(p => p.lon)
-
-            .join(",");
-
-
-        const url =
-
-            "https://api.open-meteo.com/v1/forecast?" +
-
-            "latitude=" +
-
-            encodeURIComponent(latString) +
-
-            "&longitude=" +
-
-            encodeURIComponent(lonString) +
-
-            "&current=temperature_2m" +
-
-            "&timezone=auto";
-
-
-        const response =
-
-            await fetch(url);
-
-
-        if(!response.ok){
-
-            throw new Error(
-
-                "Temperature API error"
-
-            );
-
-        }
-
-
-        const data =
-
-            await response.json();
-
-
-        const results =
-
-            Array.isArray(data)
-
-            ? data
-
-            : [data];
-
-
-        temperatureLayerGroup.clearLayers();
-
-
-        /*
-           Δημιουργούμε μικρά
-           τετράγωνα γύρω από κάθε
-           σημείο του πλέγματος.
-        */
-
-        const half =
-
-            step * .52;
-
-
-        results.forEach(
-
-            (item,index) => {
-
-
-                if(
-
-                    !item ||
-
-                    !item.current ||
-
-                    item.current.temperature_2m === undefined
-
-                ){
-
-                    return;
-
-                }
-
-
-                const temp =
-
-                    Number(
-
-                        item.current.temperature_2m
-
-                    );
-
-
-                const point =
-
-                    points[index];
-
-
-                if(!point){
-
-                    return;
-
-                }
-
-
-                const color =
-
-                    temperatureColor(temp);
-
-
-                const bounds = [
-
-                    [
-
-                        point.lat - half,
-
-                        point.lon - half
-
-                    ],
-
-                    [
-
-                        point.lat + half,
-
-                        point.lon + half
-
-                    ]
-
-                ];
-
-
-                const rectangle =
-
-                    L.rectangle(
-
-                        bounds,
-
-                        {
-
-                            stroke:false,
-
-                            fillColor:color,
-
-                            fillOpacity:.52,
-
-                            interactive:false,
-
-                            className:
-                                "temperature-cell"
-
-                        }
-
-                    );
-
-
-                rectangle.addTo(
-
-                    temperatureLayerGroup
-
-                );
-
-
-            }
-
-        );
-
-
-    }catch(error){
-
-        console.error(
-
-            "Σφάλμα χάρτη θερμοκρασίας:",
-
-            error
-
-        );
-
-    }finally{
-
-        temperatureLoading = false;
-
-    }
-
-}
-
-
-/* =====================================
-   TEMPERATURE MAP UPDATE
-===================================== */
-
-let temperatureMapTimer = null;
-
-
-function refreshTemperatureMap(){
-
-    clearTimeout(
-
-        temperatureMapTimer
-
-    );
-
-
-    temperatureMapTimer =
-
-        setTimeout(
-
-            loadTemperatureMap,
-
-            350
-
-        );
-
-}
-
-
-temperatureMap.on(
-
-    "moveend",
-
-    refreshTemperatureMap
-
-);
-
-
-temperatureMap.on(
-
-    "zoomend",
-
-    refreshTemperatureMap
-
-);
-
-
-/* =====================================
-   INITIAL TEMPERATURE MAP
-===================================== */
-
-loadTemperatureMap();
-
-
 /*
-   Νέα τρέχοντα δεδομένα
+   Νέο radar frame
    κάθε 10 λεπτά.
 */
 
 setInterval(
 
-    loadTemperatureMap,
+    loadPrecipitationRadar,
 
     10 * 60 * 1000
 
@@ -2206,23 +1424,6 @@ async function searchCity(){
             locationData.longitude,
 
             locationData.name
-
-        );
-
-
-        /* ΕΝΗΜΕΡΩΣΗ ΘΕΡΜΟΚΡΑΣΙΑΣ */
-
-        temperatureMap.setView(
-
-            [
-
-                locationData.latitude,
-
-                locationData.longitude
-
-            ],
-
-            6
 
         );
 
