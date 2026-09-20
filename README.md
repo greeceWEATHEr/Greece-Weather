@@ -96,6 +96,8 @@ body{
     top:68px;
     right:18px;
     width:240px;
+    max-height:70vh;
+    overflow-y:auto;
     background:rgba(5,27,50,.97);
     border:1px solid rgba(255,255,255,.18);
     border-radius:15px;
@@ -416,7 +418,7 @@ body{
 
 
 /* =====================================
-   ΙΣΤΟΡΙΚΟ 12 ΜΗΝΩΝ
+   ΙΣΤΟΡΙΚΟ
 ===================================== */
 
 .history-section{
@@ -646,9 +648,81 @@ body{
 
             <button
                 class="menu-item"
-                onclick="loadHistory()">
+                onclick="loadHistory(1)">
 
-                📜 Ιστορικό καιρού — τελευταίοι 12 μήνες
+                📜 Ιστορικό καιρού — τελευταίο 1 έτος
+
+            </button>
+
+            <button
+                class="menu-item"
+                onclick="loadHistory(2)">
+
+                📜 Ιστορικό καιρού — τελευταία 2 χρόνια
+
+            </button>
+
+            <button
+                class="menu-item"
+                onclick="loadHistory(3)">
+
+                📜 Ιστορικό καιρού — τελευταία 3 χρόνια
+
+            </button>
+
+            <button
+                class="menu-item"
+                onclick="loadHistory(4)">
+
+                📜 Ιστορικό καιρού — τελευταία 4 χρόνια
+
+            </button>
+
+            <button
+                class="menu-item"
+                onclick="loadHistory(5)">
+
+                📜 Ιστορικό καιρού — τελευταία 5 χρόνια
+
+            </button>
+
+            <button
+                class="menu-item"
+                onclick="loadHistory(6)">
+
+                📜 Ιστορικό καιρού — τελευταία 6 χρόνια
+
+            </button>
+
+            <button
+                class="menu-item"
+                onclick="loadHistory(7)">
+
+                📜 Ιστορικό καιρού — τελευταία 7 χρόνια
+
+            </button>
+
+            <button
+                class="menu-item"
+                onclick="loadHistory(8)">
+
+                📜 Ιστορικό καιρού — τελευταία 8 χρόνια
+
+            </button>
+
+            <button
+                class="menu-item"
+                onclick="loadHistory(9)">
+
+                📜 Ιστορικό καιρού — τελευταία 9 χρόνια
+
+            </button>
+
+            <button
+                class="menu-item"
+                onclick="loadHistory(10)">
+
+                📜 Ιστορικό καιρού — τελευταία 10 χρόνια
 
             </button>
 
@@ -757,7 +831,7 @@ body{
 
             <h3 id="historyTitle">
 
-                📜 Ιστορικό καιρού — τελευταίοι 12 μήνες
+                📜 Ιστορικό καιρού
 
             </h3>
 
@@ -873,10 +947,10 @@ function goTop(){
 
 
 /* =====================================
-   ΙΣΤΟΡΙΚΟ 12 ΜΗΝΩΝ
+   ΙΣΤΟΡΙΚΟ 1 - 10 ΧΡΟΝΙΑ
 ===================================== */
 
-async function loadHistory(){
+async function loadHistory(years){
 
     closeMenu();
 
@@ -945,8 +1019,13 @@ async function loadHistory(){
             );
 
 
+        startDate.setFullYear(
+            startDate.getFullYear() - years
+        );
+
+
         startDate.setDate(
-            startDate.getDate() - 364
+            startDate.getDate() + 1
         );
 
 
@@ -1029,7 +1108,10 @@ async function loadHistory(){
         }
 
 
-        renderHistory(data);
+        renderHistory(
+            data,
+            years
+        );
 
 
     }catch(error){
@@ -1058,7 +1140,10 @@ async function loadHistory(){
    RENDER HISTORY
 ===================================== */
 
-function renderHistory(data){
+function renderHistory(
+    data,
+    years
+){
 
     const d =
         data.daily;
@@ -1222,6 +1307,24 @@ function renderHistory(data){
         html;
 
 
+    let yearsText;
+
+
+    if(years === 1){
+
+        yearsText =
+            "τελευταίο 1 έτος";
+
+    }else{
+
+        yearsText =
+            "τελευταία " +
+            years +
+            " χρόνια";
+
+    }
+
+
     document
         .getElementById("historyTitle")
         .innerText =
@@ -1230,7 +1333,9 @@ function renderHistory(data){
 
         locationData.name +
 
-        " — τελευταίοι 12 μήνες";
+        " — " +
+
+        yearsText;
 
 }
 
