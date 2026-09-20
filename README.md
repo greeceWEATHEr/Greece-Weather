@@ -95,7 +95,7 @@ body{
     position:absolute;
     top:68px;
     right:18px;
-    width:210px;
+    width:240px;
     background:rgba(5,27,50,.97);
     border:1px solid rgba(255,255,255,.18);
     border-radius:15px;
@@ -416,6 +416,88 @@ body{
 
 
 /* =====================================
+   ΙΣΤΟΡΙΚΟ 1 ΜΗΝΑ
+===================================== */
+
+.history-section{
+    display:none;
+    margin-top:28px;
+    background:
+        rgba(5,27,50,.72);
+    border-radius:20px;
+    padding:20px;
+}
+
+.history-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.3);
+    padding-bottom:15px;
+    margin-bottom:15px;
+}
+
+.history-header h3{
+    margin:0;
+    font-size:21px;
+}
+
+.close-history{
+    background:
+        rgba(255,255,255,.15);
+    border:0;
+    color:white;
+    border-radius:10px;
+    padding:8px 13px;
+    cursor:pointer;
+}
+
+.history{
+    display:grid;
+    gap:9px;
+}
+
+.history-day{
+    display:grid;
+    grid-template-columns:
+        75px
+        70px
+        1fr
+        1fr
+        1fr
+        1fr;
+    align-items:center;
+    background:
+        rgba(65,96,130,.62);
+    border-radius:13px;
+    padding:13px 10px;
+    gap:8px;
+}
+
+.history-date{
+    font-weight:bold;
+}
+
+.history-icon{
+    font-size:25px;
+    text-align:center;
+    height:32px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.history-data{
+    font-size:13px;
+    color:#e4e8ed;
+    line-height:1.5;
+}
+
+
+/* =====================================
    MODEL INFO
 ===================================== */
 
@@ -466,6 +548,20 @@ body{
     .hour-data:nth-child(6){
         display:none;
     }
+
+    .history-day{
+        grid-template-columns:
+            65px
+            40px
+            1fr
+            1fr;
+    }
+
+    .history-data:nth-child(5),
+    .history-data:nth-child(6){
+        display:none;
+    }
+
 }
 
 
@@ -495,6 +591,11 @@ body{
 
     .icon{
         font-size:30px;
+    }
+
+    .menu{
+        right:10px;
+        width:225px;
     }
 
 }
@@ -549,6 +650,15 @@ body{
                 onclick="refreshWeather()">
 
                 🔄 Ανανέωση δεδομένων
+
+            </button>
+
+
+            <button
+                class="menu-item"
+                onclick="loadHistory()">
+
+                📜 Ιστορικό καιρού — τελευταίος 1 μήνας
 
             </button>
 
@@ -664,6 +774,44 @@ body{
 
 
     <!-- =================================
+         ΙΣΤΟΡΙΚΟ
+    ================================= -->
+
+    <div
+        id="historySection"
+        class="history-section">
+
+
+        <div class="history-header">
+
+            <h3 id="historyTitle">
+
+                📜 Ιστορικό καιρού — τελευταίος 1 μήνας
+
+            </h3>
+
+
+            <button
+                class="close-history"
+                onclick="closeHistory()">
+
+                ✕ Κλείσιμο
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="history"
+            class="history">
+        </div>
+
+
+    </div>
+
+
+    <!-- =================================
          INFO
     ================================= -->
 
@@ -724,6 +872,8 @@ function refreshWeather(){
 
     closeMenu();
 
+    closeHistory();
+
     if(locationData){
 
         loadWeather();
@@ -746,6 +896,393 @@ function goTop(){
         behavior:"smooth"
 
     });
+
+}
+
+
+
+/* =====================================
+   ΙΣΤΟΡΙΚΟ 1 ΜΗΝΑ
+===================================== */
+
+async function loadHistory(){
+
+    closeMenu();
+
+    if(!locationData){
+
+        alert(
+            "Πρώτα αναζήτησε μία τοποθεσία."
+        );
+
+        return;
+
+    }
+
+
+    const historySection =
+        document.getElementById(
+            "historySection"
+        );
+
+
+    const history =
+        document.getElementById(
+            "history"
+        );
+
+
+    historySection.style.display =
+        "block";
+
+
+    history.innerHTML = `
+
+        <div class="loading">
+
+            Φόρτωση ιστορικού καιρού...
+
+        </div>
+
+    `;
+
+
+    historySection.scrollIntoView({
+
+        behavior:"smooth",
+
+        block:"start"
+
+    });
+
+
+    try{
+
+
+        const endDate =
+            new Date();
+
+
+        endDate.setDate(
+            endDate.getDate() - 1
+        );
+
+
+        const startDate =
+            new Date(
+                endDate
+            );
+
+
+        startDate.setDate(
+            startDate.getDate() - 29
+        );
+
+
+        const formatISODate =
+            function(date){
+
+                return date
+                    .toISOString()
+                    .substring(0,10);
+
+            };
+
+
+        const start =
+            formatISODate(
+                startDate
+            );
+
+
+        const end =
+            formatISODate(
+                endDate
+            );
+
+
+        const url =
+
+            "https://archive-api.open-meteo.com/v1/archive" +
+
+            "?latitude=" +
+            locationData.latitude +
+
+            "&longitude=" +
+            locationData.longitude +
+
+            "&start_date=" +
+            start +
+
+            "&end_date=" +
+            end +
+
+            "&daily=" +
+            "weather_code," +
+            "temperature_2m_max," +
+            "temperature_2m_min," +
+            "precipitation_sum," +
+            "snowfall_sum," +
+            "wind_speed_10m_max" +
+
+            "&timezone=auto";
+
+
+        const response =
+            await fetch(url);
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "History request failed"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if(
+            !data.daily ||
+            !data.daily.time ||
+            !data.daily.time.length
+        ){
+
+            throw new Error(
+                "No history data"
+            );
+
+        }
+
+
+        renderHistory(data);
+
+
+    }catch(error){
+
+        console.error(error);
+
+
+        history.innerHTML = `
+
+            <div class="loading">
+
+                Δεν ήταν δυνατή η φόρτωση
+                του ιστορικού καιρού.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+
+/* =====================================
+   RENDER HISTORY
+===================================== */
+
+function renderHistory(data){
+
+    const d =
+        data.daily;
+
+
+    let html = "";
+
+
+    for(
+        let i = 0;
+        i < d.time.length;
+        i++
+    ){
+
+
+        const date =
+            formatDate(
+                d.time[i]
+            );
+
+
+        const code =
+            Number(
+                d.weather_code[i]
+                || 0
+            );
+
+
+        const max =
+            Math.round(
+                d.temperature_2m_max[i]
+            );
+
+
+        const min =
+            Math.round(
+                d.temperature_2m_min[i]
+            );
+
+
+        const precipitation =
+            Number(
+                d.precipitation_sum[i]
+                || 0
+            );
+
+
+        const snowfall =
+            Number(
+                d.snowfall_sum[i]
+                || 0
+            );
+
+
+        const wind =
+            Math.round(
+                d.wind_speed_10m_max[i]
+                || 0
+            );
+
+
+        let icon =
+            weatherIcon(
+                code,
+                true,
+                precipitation > 0 ? 30 : 0,
+                snowfall
+            );
+
+
+        let precipitationText;
+
+
+        if(snowfall > 0){
+
+            precipitationText =
+                "❄️ " +
+                snowfall.toFixed(1) +
+                " mm";
+
+        }else{
+
+            precipitationText =
+                "💧 " +
+                precipitation.toFixed(1) +
+                " mm";
+
+        }
+
+
+        html += `
+
+        <div class="history-day">
+
+
+            <div class="history-date">
+
+                ${date.day}
+
+                <br>
+
+                ${date.date}
+
+            </div>
+
+
+            <div class="history-icon">
+
+                ${icon}
+
+            </div>
+
+
+            <div class="history-data">
+
+                🌡️
+
+                <b>
+                    ${max}°
+                </b>
+
+                /
+
+                ${min}°
+
+            </div>
+
+
+            <div class="history-data">
+
+                ${precipitationText}
+
+            </div>
+
+
+            <div class="history-data">
+
+                🌬️
+                ${wind} km/h
+
+            </div>
+
+
+            <div class="history-data">
+
+                ${weatherText(code)}
+
+            </div>
+
+
+        </div>
+
+        `;
+
+    }
+
+
+    document
+        .getElementById("history")
+        .innerHTML =
+        html;
+
+
+    document
+        .getElementById("historyTitle")
+        .innerText =
+
+        "📜 Ιστορικό καιρού — " +
+
+        locationData.name +
+
+        " — τελευταίες 30 ημέρες";
+
+}
+
+
+
+/* =====================================
+   CLOSE HISTORY
+===================================== */
+
+function closeHistory(){
+
+    const section =
+        document.getElementById(
+            "historySection"
+        );
+
+
+    if(section){
+
+        section.style.display =
+            "none";
+
+    }
 
 }
 
@@ -1145,6 +1682,9 @@ async function searchCity(){
 
     if(!city)
         return;
+
+
+    closeHistory();
 
 
     document
