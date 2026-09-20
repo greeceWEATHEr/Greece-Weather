@@ -465,7 +465,7 @@ body{
 .history-day{
     display:grid;
     grid-template-columns:
-        75px
+        85px
         70px
         1fr
         1fr
@@ -477,6 +477,19 @@ body{
     border-radius:13px;
     padding:13px 10px;
     gap:8px;
+    cursor:pointer;
+    transition:.18s;
+}
+
+.history-day:hover{
+    background:
+        rgba(72,105,143,.90);
+    border-color:
+        rgba(255,255,255,.20);
+}
+
+.history-day:active{
+    transform:scale(.99);
 }
 
 .history-date{
@@ -496,6 +509,80 @@ body{
     font-size:13px;
     color:#e4e8ed;
     line-height:1.5;
+}
+
+
+/* =====================================
+   ΙΣΤΟΡΙΚΟ ΩΡΙΑΙΑΣ ΗΜΕΡΑΣ
+===================================== */
+
+.history-hourly{
+    margin-top:8px;
+    margin-bottom:4px;
+    background:
+        rgba(12,42,70,.85);
+    border-radius:15px;
+    padding:15px;
+    border:
+        1px solid
+        rgba(255,255,255,.14);
+}
+
+.history-hourly-title{
+    font-size:17px;
+    font-weight:bold;
+    margin-bottom:13px;
+    padding-bottom:10px;
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.20);
+}
+
+.history-hourly-loading{
+    text-align:center;
+    padding:18px;
+    color:#dce5ee;
+}
+
+.history-hour{
+    display:grid;
+    grid-template-columns:
+        55px
+        42px
+        1fr
+        1fr
+        1fr
+        1fr;
+    align-items:center;
+    background:
+        rgba(65,96,130,.55);
+    border-radius:11px;
+    padding:10px 8px;
+    gap:7px;
+    margin-bottom:6px;
+}
+
+.history-hour:last-child{
+    margin-bottom:0;
+}
+
+.history-hour-time{
+    font-weight:bold;
+}
+
+.history-hour-icon{
+    font-size:23px;
+    text-align:center;
+    height:30px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.history-hour-data{
+    font-size:12px;
+    color:#e4e8ed;
+    line-height:1.45;
 }
 
 
@@ -553,7 +640,7 @@ body{
 
     .history-day{
         grid-template-columns:
-            65px
+            80px
             40px
             1fr
             1fr;
@@ -561,6 +648,19 @@ body{
 
     .history-data:nth-child(5),
     .history-data:nth-child(6){
+        display:none;
+    }
+
+    .history-hour{
+        grid-template-columns:
+            50px
+            38px
+            1fr
+            1fr;
+    }
+
+    .history-hour-data:nth-child(5),
+    .history-hour-data:nth-child(6){
         display:none;
     }
 
@@ -598,6 +698,14 @@ body{
     .menu{
         right:10px;
         width:225px;
+    }
+
+    .history-day{
+        grid-template-columns:
+            75px
+            38px
+            1fr
+            1fr;
     }
 
 }
@@ -1051,6 +1159,12 @@ async function loadHistory(years){
             );
 
 
+        /*
+         * Το ERA5-Seamless χρησιμοποιείται
+         * για συνεπή ιστορικά δεδομένα
+         * σε μεγάλα χρονικά διαστήματα.
+         */
+
         const url =
 
             "https://archive-api.open-meteo.com/v1/archive" +
@@ -1074,6 +1188,8 @@ async function loadHistory(years){
             "precipitation_sum," +
             "snowfall_sum," +
             "wind_speed_10m_max" +
+
+            "&models=era5_seamless" +
 
             "&timezone=auto";
 
@@ -1161,7 +1277,8 @@ function renderHistory(
 
         const date =
             formatDate(
-                d.time[i]
+                d.time[i],
+                true
             );
 
 
@@ -1214,29 +1331,30 @@ function renderHistory(
             );
 
 
-        let precipitationText;
+        let precipitationText =
+
+            "💧 " +
+            precipitation.toFixed(1) +
+            " mm";
 
 
         if(snowfall > 0){
 
-            precipitationText =
-                "❄️ " +
+            precipitationText +=
+
+                " &nbsp;|&nbsp; ❄️ " +
                 snowfall.toFixed(1) +
-                " mm";
-
-        }else{
-
-            precipitationText =
-                "💧 " +
-                precipitation.toFixed(1) +
-                " mm";
+                " cm";
 
         }
 
 
         html += `
 
-        <div class="history-day">
+        <div
+            class="history-day"
+            onclick="showHistoryHourly('${d.time[i]}', this)"
+        >
 
 
             <div class="history-date">
@@ -1336,6 +1454,409 @@ function renderHistory(
         " — " +
 
         yearsText;
+
+}
+
+
+
+/* =====================================
+   ΙΣΤΟΡΙΚΗ ΩΡΙΑΙΑ ΗΜΕΡΑ
+===================================== */
+
+async function showHistoryHourly(
+    date,
+    dayElement
+){
+
+    const history =
+        document.getElementById(
+            "history"
+        );
+
+
+    /*
+     * Αν υπάρχει ήδη ανοιχτή
+     * ωριαία ανάλυση, την αφαιρούμε.
+     */
+
+    const existing =
+        document.querySelector(
+            ".history-hourly"
+        );
+
+
+    if(existing){
+
+        existing.remove();
+
+    }
+
+
+    const hourlyBox =
+        document.createElement(
+            "div"
+        );
+
+
+    hourlyBox.className =
+        "history-hourly";
+
+
+    hourlyBox.innerHTML = `
+
+        <div class="history-hourly-title">
+
+            ⏱️ Ωριαία ανάλυση — ${formatHistoryDateOnly(date)}
+
+        </div>
+
+        <div class="history-hourly-loading">
+
+            Φόρτωση ωριαίων ιστορικών δεδομένων...
+
+        </div>
+
+    `;
+
+
+    /*
+     * Η ανάλυση φορτώνεται ακριβώς
+     * για τη συγκεκριμένη ημέρα.
+     */
+
+    dayElement.insertAdjacentElement(
+        "afterend",
+        hourlyBox
+    );
+
+
+    hourlyBox.scrollIntoView({
+
+        behavior:"smooth",
+
+        block:"center"
+
+    });
+
+
+    try{
+
+
+        const url =
+
+            "https://archive-api.open-meteo.com/v1/archive" +
+
+            "?latitude=" +
+            locationData.latitude +
+
+            "&longitude=" +
+            locationData.longitude +
+
+            "&start_date=" +
+            date +
+
+            "&end_date=" +
+            date +
+
+            "&hourly=" +
+
+            "temperature_2m," +
+            "relative_humidity_2m," +
+            "apparent_temperature," +
+            "precipitation," +
+            "snowfall," +
+            "weather_code," +
+            "cloud_cover," +
+            "wind_speed_10m," +
+            "wind_direction_10m," +
+            "wind_gusts_10m," +
+            "is_day" +
+
+            "&models=era5_seamless" +
+
+            "&timezone=auto";
+
+
+        const response =
+            await fetch(url);
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "Historical hourly request failed"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if(
+            !data.hourly ||
+            !data.hourly.time ||
+            !data.hourly.time.length
+        ){
+
+            throw new Error(
+                "No hourly historical data"
+            );
+
+        }
+
+
+        renderHistoryHourly(
+            data,
+            hourlyBox,
+            date
+        );
+
+
+    }catch(error){
+
+        console.error(error);
+
+
+        hourlyBox.innerHTML = `
+
+            <div class="history-hourly-title">
+
+                ⏱️ Ωριαία ανάλυση — ${formatHistoryDateOnly(date)}
+
+            </div>
+
+            <div class="history-hourly-loading">
+
+                Δεν ήταν δυνατή η φόρτωση
+                της ωριαίας ανάλυσης.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+
+/* =====================================
+   RENDER HISTORICAL HOURLY
+===================================== */
+
+function renderHistoryHourly(
+    data,
+    container,
+    date
+){
+
+    const d =
+        data.hourly;
+
+
+    let html = `
+
+        <div class="history-hourly-title">
+
+            ⏱️ Ωριαία ανάλυση — ${formatHistoryDateOnly(date)}
+
+        </div>
+
+    `;
+
+
+    for(
+        let i = 0;
+        i < d.time.length;
+        i++
+    ){
+
+
+        const hour =
+            d.time[i]
+            .substring(11,16);
+
+
+        const temp =
+            Math.round(
+                d.temperature_2m[i]
+            );
+
+
+        const feels =
+            Math.round(
+                d.apparent_temperature[i]
+            );
+
+
+        const precipitation =
+            Number(
+                d.precipitation[i]
+                || 0
+            );
+
+
+        const snowfall =
+            Number(
+                d.snowfall[i]
+                || 0
+            );
+
+
+        const clouds =
+            Math.round(
+                d.cloud_cover[i]
+                || 0
+            );
+
+
+        const wind =
+            Math.round(
+                d.wind_speed_10m[i]
+                || 0
+            );
+
+
+        const windDir =
+            windDirection(
+                d.wind_direction_10m[i]
+            );
+
+
+        const gust =
+            Math.round(
+                d.wind_gusts_10m[i]
+                || 0
+            );
+
+
+        const humidity =
+            Math.round(
+                d.relative_humidity_2m[i]
+                || 0
+            );
+
+
+        const isDay =
+            d.is_day[i] === 1;
+
+
+        const code =
+            Number(
+                d.weather_code[i]
+                || 0
+            );
+
+
+        const icon =
+            weatherIcon(
+                code,
+                isDay,
+                precipitation > 0 ? 30 : 0,
+                snowfall
+            );
+
+
+        let precipitationHTML =
+
+            "💧 " +
+            precipitation.toFixed(1) +
+            " mm";
+
+
+        if(snowfall > 0){
+
+            precipitationHTML += `
+
+                <br>
+
+                ❄️ ${snowfall.toFixed(1)} cm
+
+            `;
+
+        }
+
+
+        html += `
+
+        <div class="history-hour">
+
+
+            <div class="history-hour-time">
+
+                ${hour}
+
+            </div>
+
+
+            <div class="history-hour-icon">
+
+                ${icon}
+
+            </div>
+
+
+            <div class="history-hour-data">
+
+                🌡️
+                <b>${temp}°</b>
+
+                <br>
+
+                Αίσθηση
+                ${feels}°
+
+            </div>
+
+
+            <div class="history-hour-data">
+
+                ${precipitationHTML}
+
+            </div>
+
+
+            <div class="history-hour-data">
+
+                💧
+                ${humidity}%
+
+                <br>
+
+                ☁️
+                ${clouds}%
+
+            </div>
+
+
+            <div class="history-hour-data">
+
+                🌬️
+                ${wind} km/h
+
+                <br>
+
+                Ριπές:
+                ${gust} km/h
+
+                <br>
+
+                ${windDir}
+
+            </div>
+
+
+        </div>
+
+        `;
+
+    }
+
+
+    container.innerHTML =
+        html;
 
 }
 
@@ -1717,7 +2238,10 @@ const greekDays = [
 ];
 
 
-function formatDate(dateString){
+function formatDate(
+    dateString,
+    includeYear = false
+){
 
     const d =
         new Date(
@@ -1726,17 +2250,60 @@ function formatDate(dateString){
         );
 
 
+    let formattedDate =
+
+        d.getDate() +
+        "/" +
+        (d.getMonth() + 1);
+
+
+    if(includeYear){
+
+        formattedDate +=
+
+            "/" +
+            d.getFullYear();
+
+    }
+
+
     return {
 
         day:
             greekDays[d.getDay()],
 
         date:
-            d.getDate() +
-            "/" +
-            (d.getMonth() + 1)
+            formattedDate
 
     };
+
+}
+
+
+/* =====================================
+   ΙΣΤΟΡΙΚΗ ΗΜΕΡΟΜΗΝΙΑ
+===================================== */
+
+function formatHistoryDateOnly(
+    dateString
+){
+
+    const d =
+        new Date(
+            dateString +
+            "T12:00:00"
+        );
+
+
+    return (
+
+        d.getDate() +
+        "/" +
+        (d.getMonth() + 1) +
+        "/" +
+        d.getFullYear()
+
+    );
 
 }
 
